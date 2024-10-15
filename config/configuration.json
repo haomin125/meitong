@@ -1,0 +1,650 @@
+{
+    "UISetting": {
+        "common": {
+            "exportFormat": ["pdf","excel"],
+            "DetectorToCategory": [
+                [
+                    "defect1",
+                    "defect2",
+                    "defect3",
+                    "defect4",
+                    "defect5",
+                    "defect6",
+                    "defect7",
+                    "defect8",
+                    "defect9",
+                    "defect10"
+                ],
+                [
+                    "defect1",
+                    "defect2",
+                    "defect3",
+                    "defect4",
+                    "defect5",
+                    "defect6",
+                    "defect7",
+                    "defect8",
+                    "defect9",
+                    "defect10"
+                ]
+            
+            ],
+
+            "logoName": "/opt/seeking.jpg",
+            "projectName": "美瞳",
+            "defaultLoginAccount": "opr",
+            "defaultLoginRole": "Operator",
+            "passwordExpireInDays": 90,
+            "fullscreenInterval": 1000,
+            "cameraNumber": 2,
+            "defectNumber": 30,
+            "innerOpen": ["plc", "common"],    
+            "autoLoginDefault": true
+        },
+
+        "operation": {
+            "runAfterLogin": true,
+            "runFromSetup": true,
+            "showPurge": true,
+            "checkModeType":[{"title":"检测", "value":0}, {"title":"空跑", "value":1}],
+            "showCheck": true,
+            "showDefectAlways": true,
+            "showAllDefectTotal": true,
+            "hideSpeed": false,
+            "historyNg":
+            {
+                "show": true,
+                "splitToCamera": true,
+                "direction": "y",
+                "num": 5,
+                "size": 50,
+                "imgErrorGap": 500
+            }
+        },
+
+        "report": {
+            "enableExportBatchSummariesToPdf": true,
+            "enableSaveFileDirectly": true,
+            "useTimestampedFilename": true,
+            "includeOkCountInRatioReport": true,
+            "useRealProdFlaw": true,
+            "multiWork":[ { "title": "所有", "value": "-1"} ]
+        },
+
+        "history": {
+            "imgDirs": [ 
+              {
+                "title": "结果图像",
+                "path": "/resultImage/bad",
+                "asDefault": true
+              }
+            ]
+      
+          },
+
+        "setup": 
+        {
+            "cameraParams-0":[
+                {
+                    "index": 10,
+                    "isRecordToDB": false,
+                    "id": "exposure",
+                    "title": "曝光",
+                    "showType": "slide",
+                    "step": 1,
+                    "range": [
+                        100,
+                        10000
+                    ]
+                },
+                {
+                    "index": 11,
+                    "isRecordToDB": false,
+                    "id": "gain",
+                    "title": "增益",
+                    "showType": "slide",
+                    "type": "int",
+                    "step": 1,
+                    "range": [
+                        0,
+                        40
+                    ]
+                },
+                {
+                    "index": 12,
+                    "isRecordToDB": false,
+                    "id": "gammaEnable",
+                    "title": "伽马使能",
+                    "showType": "switch"
+                },
+                {
+                    "index": 13,
+                    "isRecordToDB": false,
+                    "id": "gammaValue",
+                    "title": "伽马值",
+                    "showType": "slide",
+                    "type": "float",
+                    "precision": 1,
+                    "step": 0.1,
+                    "range": [
+                        0,
+                        10
+                    ]
+                }
+
+            ],
+
+            "cameraParams-1":[
+                {
+                    "index": 14,
+                    "isRecordToDB": false,
+                    "id": "exposure",
+                    "title": "曝光",
+                    "showType": "slide",
+                    "step": 1,
+                    "range": [
+                        100,
+                        10000
+                    ]
+                },
+                {
+                    "index": 15,
+                    "isRecordToDB": false,
+                    "id": "gain",
+                    "title": "增益",
+                    "showType": "slide",
+                    "type": "int",
+                    "step": 1,
+                    "range": [
+                        0,
+                        40
+                    ]
+                },
+                {
+                    "index": 16,
+                    "isRecordToDB": false,
+                    "id": "gammaEnable",
+                    "title": "伽马使能",
+                    "showType": "switch"
+                },
+                {
+                    "index": 17,
+                    "isRecordToDB": false,
+                    "id": "gammaValue",
+                    "title": "伽马值",
+                    "showType": "slide",
+                    "type": "float",
+                    "precision": 1,
+                    "step": 0.1,
+                    "range": [
+                        0,
+                        10
+                    ]
+                }    
+            ],
+
+            "plcParams":[
+                {
+                    "index": 34,
+                    "id": "board1_triger_dis",
+                    "title": "工位1触发距离mm"
+                },
+                {
+                    "index": 35,
+                    "id": "board2_triger_dis",
+                    "title": "工位2触发距离mm"
+
+                },
+                {
+                    "index": 36,
+                    "id": "board3_triger_dis",
+                    "title": "工位3触发距离mm"
+
+                },
+                {
+                    "index": 37,
+                    "id": "purge_dis",
+                    "title": "PLC剔除距离mm"
+
+                },
+                {
+                    "index": 38,
+                    "id": "purge_delay",
+                    "title": "PLC剔除延时ms"
+
+                },
+                {
+                    "index": 39,
+                    "id": "blow_delay",
+                    "title": "PLC吹气延时ms"
+                }         
+                    
+            ],
+
+            "commonParams":[
+                {
+                    "index": 9,
+                    "id": "num",
+                    "title": "存图数量"
+
+                }
+            ],
+            
+            "draw": { 
+                "startIndex": 150,
+                "maxLimit": [1, 1], 
+                "minLimit": [0, 0],                         
+                "types": ["检测框", "屏蔽框"]
+            },
+            
+            "showPreview": true,
+            "showUpdate": true, 
+            "reloadAfterUpdate":true,
+            "flawParams-0": [
+                {
+                    "id": "parms_group1",
+                    "name":"检测参数",
+                    "params":[
+                        {
+                            "index": 40,
+                            "id":"parms_item1",
+                            "name":"模型检测参数",
+                            "disabledChecked": false,
+                            "paramsList": [
+                                {
+                                    "index": 300,
+                                    "isRecordToDB": false,
+                                    "id":"forbid",
+                                    "name":"禁止",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 301,
+                                    "isRecordToDB": false,
+                                    "id":"xianshang",
+                                    "name":"线伤",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 302,
+                                    "isRecordToDB": false,
+                                    "id":"dianshang",
+                                    "name":"点伤",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 303,
+                                    "isRecordToDB": false,
+                                    "id":"youmoxian",
+                                    "name":"油墨线",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 304,
+                                    "isRecordToDB": false,
+                                    "id":"youmodian",
+                                    "name":"油墨点",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 305,
+                                    "isRecordToDB": false,
+                                    "id":"yiwuxian",
+                                    "name":"异物线",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 306,
+                                    "isRecordToDB": false,
+                                    "id":"yiwudian",
+                                    "name":"异物点",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 307,
+                                    "isRecordToDB": false,
+                                    "id":"bianyuanbianxing",
+                                    "name":"边缘变形",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 308,
+                                    "isRecordToDB": false,
+                                    "id":"quelou",
+                                    "name":"缺漏",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 309,
+                                    "isRecordToDB": false,
+                                    "id":"other",
+                                    "name":"other",
+                                    "showType": "switch"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+
+            "flawParams-1": [
+                {
+                    "id": "parms_group1",
+                    "name":"检测参数",
+                    "params":[
+                        {
+                            "index": 41,
+                            "id":"parms_item1",
+                            "name":"模型检测参数",
+                            "disabledChecked": false,
+                            "paramsList": [
+                                {
+                                    "index": 350,
+                                    "isRecordToDB": false,
+                                    "id":"forbid",
+                                    "name":"禁止",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 351,
+                                    "isRecordToDB": false,
+                                    "id":"xianshang",
+                                    "name":"线伤",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 352,
+                                    "isRecordToDB": false,
+                                    "id":"dianshang",
+                                    "name":"点伤",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 353,
+                                    "isRecordToDB": false,
+                                    "id":"youmoxian",
+                                    "name":"油墨线",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 354,
+                                    "isRecordToDB": false,
+                                    "id":"youmodian",
+                                    "name":"油墨点",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 355,
+                                    "isRecordToDB": false,
+                                    "id":"yiwuxian",
+                                    "name":"异物线",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 356,
+                                    "isRecordToDB": false,
+                                    "id":"yiwudian",
+                                    "name":"异物点",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 357,
+                                    "isRecordToDB": false,
+                                    "id":"bianyuanbianxing",
+                                    "name":"边缘变形",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 358,
+                                    "isRecordToDB": false,
+                                    "id":"quelou",
+                                    "name":"缺漏",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 359,
+                                    "isRecordToDB": false,
+                                    "id":"other",
+                                    "name":"other",
+                                    "showType": "switch"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+
+        "i18n": {
+            "chn": {
+                "common": {
+                    "label": {
+                        "all": "所有",
+                        "defect1": "禁止",
+                        "defect2": "线伤",
+						"defect3": "点伤",
+						"defect4": "油墨线",
+                        "defect5": "油墨点",
+                        "defect6": "异物线",
+						"defect7": "异物点",
+                        "defect8": "边缘变形",
+                        "defect9": "缺漏",
+						"defect10": "other",
+                        "workStation1": "第1个工位",
+                        "workStation2": "第2个工位",
+                        "workstation-1": "工位1",
+                        "workstation-2": "工位2",
+                        "workstation-1-camera-1": "相机1",
+                        "workstation-2-camera-1": "相机2"
+                    }
+                },
+                "operation": {
+                    "label": {
+                        "production": "总产量:"
+                    }
+                }
+            },
+            "eng": {
+                "common": {
+                    "label": {
+                        "all": "All",
+                        "defect1": "forbid",
+                        "defect2": "line injury",
+                        "defect3": "slight injury",
+                        "defect4": "ink line",
+                        "defect5": "ink dot",
+                        "defect6": "foreign object line",
+                        "defect7": "foreign object dot",
+                        "defect8": "edge deformation",
+                        "defect9": "omissions",
+                        "defect10": "other",
+                        "workStation1": "1st Station",
+                        "workStation2": "2st Station"
+                    }
+                },
+                "operation": {
+                    "label": {
+                        "production": "Production:"
+                    }
+                }
+            }
+        }   
+    },
+
+    "CAMERA_IMAGE_DRAW_SCALE": [0.25, 0.25],
+    "CAMERA_IMAGE_DRAW_THICKNESS":  [2, 2],
+    "CAMERA_IMAGE_DRAW_TEXT_POS_X": [30, 30],
+    "CAMERA_IMAGE_DRAW_TEXT_POS_Y": [100, 100],
+    "CAMERA_IMAGE_DRAW_TEXT_FONT_SCALE": [4, 4],
+
+    "IS_NEED_SAVE_SOURCE_IMAGE_IN_APP": false,
+    "IS_SAVE_RESIZE_RESULT_IMAGE": false,
+    "IS_NEED_SAVE_OK_RESULT_IMAGE": false,
+    "IS_USE_MULTI_THREAD_PER_CAMERA": true,
+    "IS_NEED_HANGUP_IMAGE_SAVE_THREAD_BEFORE_IMAGE_PROCESS": false,
+    "MAX_BUFFER_IMAGE_SAVE_NUM": 50,
+    
+    "IS_USE_BOARDID_KEY": false,
+    "USE_BOARDID_KEY": 0,
+    "IS_COUNT_MULTI_DEFECTS_PER_TARGET": true,
+    
+    "IS_ENABLE_HEART_BEAT_SIGNAL_CHECK": true,
+    "IS_ENABLE_SEND_SIGNAL_IN_MOCK_VIDEO": true,
+    "HEART_BEAT_SIGNAL_TIME_INTERVAL_MS": 500,
+    "IS_USE_MERGE_SERVER": false,
+
+    "IS_USE_MES_SYSTEM": false,
+    "IS_USE_IO_CARD": false,
+    "IO_CARD_DEVICE_NAME": "PCI-1730",
+    "IO_CARD_SIGNAL_TIME_MS": 20,
+    "IO_CARD_HEART_BEAT_BIT_ADDRESS": 2,
+    "IO_CARD_CAMERA_RESULT_BIT_ADDRESS": [0, 1],
+
+    "PLC_MODBUS_TCP_IP": "192.168.3.1",
+    "PLC_MODBUS_TCP_PORT": 502,
+    "PLC_MODBUS_TCP_TIMEOUT": 20000,
+    "PLC_MODBUS_TCP_OK_RESULT_VALUE": 1,
+    "PLC_MODBUS_TCP_NG_RESULT_VALUE": 2,
+    "PLC_MODBUS_TCP_HEART_BEAT_ADDRESS": 0,
+    "PLC_MODBUS_TCP_CAMERA_INPUT_REGISTER_ADDRESS":  [120, 121],
+    "PLC_MODBUS_TCP_CAMERA_RESULT_REGISTER_ADDRESS": [1, 2],
+
+    "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS": 2000,
+    "PLC_MODBUS_TCP_TOTAL_DEFECT_COUNT_ADDRESS": 2004,
+    "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS_LIST": [102, 106, 110, 112, 116, 118, 122, 126, 130, 134, 138],
+    "BOARD_APP_TO_REAL":[4, 4, 4, 4],
+
+    "MOCK_VIDEO_PATH": "/opt/image/1014/",
+    "MOCK_VIDEO_FILES": ["image10/1_ming", "image10/2_zheng"],
+    "MOCK_VIDEO_FRAME_TIME_INTERVAL_MS": 1000,
+    "CAPTUREIMAGETIMES": 1,
+
+    "PARAMS_CONFIG_PATH": "/opt/config/params_configuration.json",
+
+    "CAMERA_NAME":["CAM1", "CAM2"],
+    "CAMERA_IP": ["192.168.10.10", "192.168.20.20"],
+    "CAMERA_TYPE": ["AreaArray", "AreaArray"],
+    "CAMERA_TOTAL_IMAGES": [2, 2],
+    "CAMERA_TIMEOUT": [8000, 8000],
+    "CAMERA_IMAGE_WIDTH":  [4096, 4096],
+    "CAMERA_IMAGE_HEIGHT": [1000, 1168],
+    "CAMERA_OFFSET_X": [0, 0],
+    "CAMERA_OFFSET_Y": [500, 648],
+    "CAMERA_FPS": [10, 10],
+    "CAMERA_EXPOSURE": [110, 130],
+    "CAMERA_GAMMA": [1, 1],
+    "CAMERA_GAIN":  [0, 0],
+    "CAMERA_TRIGGER_MODE": [1, 1],
+    "CAMERA_LINE_DEBOUNCER_TIME": [50, 50],
+    "CAMERA_PIXEL_FORMAT": ["BayerRG8", "BayerRG8"],
+    "CAMERA_SOFT_TRIGGER_ENABLE": [false, false, false, false, false],
+
+    "PRODUCT_LINE_CONFIG":{
+        "BOARD_TO_VIEW":[
+            [
+                0
+            ],
+            [
+                1
+            ]               
+        ],
+        "VIEW_TO_BOARD":[
+            0,
+            1              
+        ],
+        "TAERGET_IN_VIEW":[25, 25]
+    },
+
+    "PRIVATED_ALGORITHM_FLOAT_PARAMS_CONFIG":{
+        "IS_DEBUG": 1,
+        "IS_SAVE_PROCESS_IMAGE": 1,
+        "IS_USE_MODEL_CONFIG": 0,
+        "sThr": 1,
+
+        "IS_CHECK_BAOHUMO": 0,
+        "BAOHUMO_EDGE_AREA": 100,
+
+        "IS_CHECK_CHARACTER": 0,
+        "CHARACTER_MATCH_RESIZE_SCALE":0.1,
+        "CHARACTER_MATCH_SCORE": 0.5,
+
+        "IS_CHECK_TIAOXINGMA": 0,
+        "TIAOXINGMA_MATCH_RESIZE_SCALE":0.4,
+        "TIAOXINGMA_MATCH_SCORE": 0.4,
+
+        "IS_CHECK_LOGO": 0,
+        "LOGO_MATCH_RESIZE_SCALE":0.2,
+        "LOGO_MATCH_SCORE": 0.5,
+
+        "IS_CHECK_MIANZHIHUNLIAO": 0,
+        "MIANZHI_MAX_BATCH_SIZE":1,
+
+        "IS_CHECK_PINGKAYICHANG": 0,
+        "KONG_ROI_OFFSET_X_SCALE": 0.55,
+        "KONG_ROI_OFFSET_W_SCALE": 0.2,
+        "KONG_ROI_OFFSET_Y_SCALE": 0.22,
+        "KONG_ROI_OFFSET_H_SCALE": 0.18,
+        "KONG_GRAY_THRESHOLD": 190,
+        "PINGMIAN_ROI_OFFSET_X_SCALE": 0.15,
+        "PINGMIAN_ROI_OFFSET_W_SCALE": 0.25,
+        "PINGMIAN_ROI_OFFSET_Y_SCALE": 0.15,
+        "PINGMIAN_ROI_OFFSET_H_SCALE": 0.25,
+        "PINGMIAN_GRAY_THRESHOLD": 145
+    },
+
+    "PRIVATED_ALGORITHM_VECTOR_FLOAT_PARAMS_CONFIG":{
+        "NUM_CATEGORY": [9, 9],
+        "MAX_BATCH_SIZE": [3, 3],
+        "MNS_THRESHOLD": [0.5, 0.5],
+        "CONF_THRESHOLD": [0.5, 0.5],
+        "MASK_THR": [0.5, 0.5],
+        "is_board": [4, 1, 4],
+        
+        "DEFECT_MIN_AREA_CAM_C1": [1,11,11,999,31,23,2,8,5,0],
+        "DEFECT_MIN_DIAG_CAM_C1": [2,3,2,11,4,3,2,3,2,0],
+        "DEFECT_MIN_PROB_CAM_C1": [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
+        "DEFECT_MIN_AREA_CAM_NC1": [3,2222,33,33,444,231,23,3,3,0],
+        "DEFECT_MIN_DIAG_CAM_NC1": [1,22,11,21,4,6,3,2,2,0],
+        "DEFECT_MIN_PROB_CAM_NC1": [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
+        "BOX_BINARY_THRESHOLD1":[30, 10],
+        "BOX_BINARY_AREA_THRESHOLD1":[40000, 40000],
+
+        "DEFECT_MIN_AREA_CAM_C2": [1,11,11,999,31,23,2,8,5,0],
+        "DEFECT_MIN_DIAG_CAM_C2": [2,3,2,11,4,3,2,3,2,0],
+        "DEFECT_MIN_PROB_CAM_C2": [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
+        "DEFECT_MIN_AREA_CAM_NC2": [3,2222,33,33,444,231,23,3,3,0],
+        "DEFECT_MIN_DIAG_CAM_NC2": [1,22,11,21,4,6,3,2,2,0],
+        "DEFECT_MIN_PROB_CAM_NC2": [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
+        "BOX_BINARY_THRESHOLD2":[210, 30],
+        "BOX_BINARY_AREA_THRESHOLD2":[40000, 40000],
+
+
+        "ROI_OFFSET_X": [0, 0],
+        "ROI_OFFSET_Y": [0, 0],
+        "ROI_WIDTH":  [5120, 5120],
+        "ROI_HEIGHT": [5120, 5120],
+
+        "IS_CHECK_WUXING": [0, 0],
+        "WUXING_X": [2425, 2425],
+        "WUXING_Y": [2425, 2425],
+
+        "DISABLE_DEFECT_TYPE_DET_CAM1": [8],
+        "DISABLE_DEFECT_TYPE_DET_CAM2": [8],
+
+        "MIANZHI_CATEGORY": [5565,5566]
+    },
+
+    "PRIVATED_ALGORITHM_STRING_PARAMS_CONFIG":{
+        "MODEL_PATH_CAM1":"./models/1010best.engine",
+        "MODEL_PATH_CAM2":"./models/1010best.engine",
+        "MIANZHI_HUNLIAO_MODEL_PATH": "./models/tiangai/tiangaihunbanemb.engine",
+
+        "MIANZHI_HUNLIAO_MODEL_EMB_PATH": "./models/tiangai/tiangaihunban.json",
+
+        "IPU": "MEITONG",
+
+        "CHARACTER_IMAGE_PATH": "./template/tiangai/1.png",
+        "TIAOXINGMA_IMAGE_PATH": "./template/tiangai/2.png",
+        "LOGO_IMAGE_PATH": "./template/tiangai/3.png"
+    }
+}

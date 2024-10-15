@@ -1,0 +1,90 @@
+{
+    "flawParams-0": {
+        "parms_group1": {
+            "parms_item1": {
+                "forbid": "1",
+                "xianshang": "1",
+                "dianshang": "1",
+                "youmoxian": "1",
+                "youmodian": "1",
+                "yiwuxian": "1",
+                "yiwudian": "1",
+                "bianyuanbianxing": "1",
+                "quelou": "1",
+                "other": "1"
+            }
+        }
+    },
+    "flawParams-1": {
+        "parms_group1": {
+            "parms_item1": {
+                "forbid": "1",
+                "xianshang": "1",
+                "dianshang": "1",
+                "youmoxian": "1",
+                "youmodian": "1",
+                "yiwuxian": "1",
+                "yiwudian": "1",
+                "bianyuanbianxing": "1",
+                "quelou": "1",
+                "other": "1"
+            }
+        }
+    },
+    "flawParams-2": {
+        "parms_group1": {
+            "parms_item1": {
+                "forbid": "1",
+                "xianshang": "1",
+                "dianshang": "1",
+                "youmoxian": "1",
+                "youmodian": "1",
+                "yiwuxian": "1",
+                "yiwudian": "1",
+                "bianyuanbianxing": "1",
+                "quelou": "1",
+                "other": "1"
+            }
+        }
+    },
+    "flawParams-3": {
+        "parms_group1": {
+            "parms_item1": {
+                "forbid": "1",
+                "xianshang": "1",
+                "dianshang": "1",
+                "youmoxian": "1",
+                "youmodian": "1",
+                "yiwuxian": "1",
+                "yiwudian": "1",
+                "bianyuanbianxing": "1",
+                "quelou": "1",
+                "other": "1"
+            }
+        }
+    },
+    "cameraParams-0": {
+        "exposure": "110",
+        "gain": "0",
+        "gammaEnable": "1",
+        "gammaValue": "1"
+    },
+    "cameraParams-1": {
+        "exposure": "130",
+        "gain": "0",
+        "gammaEnable": "1",
+        "gammaValue": "1"
+    },
+    "cameraParams-2": {
+        "exposure": "130",
+        "gain": "0",
+        "gammaEnable": "1",
+        "gammaValue": "1"
+    },
+    "cameraParams-3": {
+        "exposure": "130",
+        "gain": "0",
+        "gammaEnable": "1",
+        "gammaValue": "1"
+    }
+}

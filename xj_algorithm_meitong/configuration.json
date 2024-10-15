@@ -1,0 +1,827 @@
+{
+    "UISetting": {
+        "common": {
+            "DetectorToCategory": [
+                [
+                    "defect1",
+                    "defect2",
+                    "defect3",
+                    "defect4",
+                    "defect5",
+                    "defect6",
+                    "defect7",
+                    "defect8",
+                    "defect9",
+                    "defect10",
+                    "defect11",
+                    "defect12",
+                    "defect13",
+                    "defect14",
+                    "defect15",
+                    "defect16",
+                    "defect17",
+                    "defect18",
+                    "defect19",
+                    "defect20",
+                    "defect21",
+                    "defect22",
+                    "defect23",
+                    "defect24",
+                    "defect25"
+                ],
+                [
+                    "defect1",
+                    "defect2",
+                    "defect3",
+                    "defect4",
+                    "defect5",
+                    "defect6",
+                    "defect7",
+                    "defect8",
+                    "defect9",
+                    "defect10",
+                    "defect11",
+                    "defect12",
+                    "defect13",
+                    "defect14",
+                    "defect15",
+                    "defect16",
+                    "defect17",
+                    "defect18",
+                    "defect19",
+                    "defect20",
+                    "defect21",
+                    "defect22",
+                    "defect23",
+                    "defect24",
+                    "defect25"
+                ],
+                [
+                    "defect1",
+                    "defect2",
+                    "defect3",
+                    "defect4",
+                    "defect5",
+                    "defect6",
+                    "defect7",
+                    "defect8",
+                    "defect9",
+                    "defect10",
+                    "defect11",
+                    "defect12",
+                    "defect13",
+                    "defect14",
+                    "defect15",
+                    "defect16",
+                    "defect17",
+                    "defect18",
+                    "defect19",
+                    "defect20",
+                    "defect21",
+                    "defect22",
+                    "defect23",
+                    "defect24",
+                    "defect25"
+                ],
+                [
+                    "defect1",
+                    "defect2",
+                    "defect3",
+                    "defect4",
+                    "defect5",
+                    "defect6",
+                    "defect7",
+                    "defect8",
+                    "defect9",
+                    "defect10",
+                    "defect11",
+                    "defect12",
+                    "defect13",
+                    "defect14",
+                    "defect15",
+                    "defect16",
+                    "defect17",
+                    "defect18",
+                    "defect19",
+                    "defect20",
+                    "defect21",
+                    "defect22",
+                    "defect23",
+                    "defect24",
+                    "defect25"
+                ],
+                [
+                    "defect1",
+                    "defect2",
+                    "defect3",
+                    "defect4",
+                    "defect5",
+                    "defect6",
+                    "defect7",
+                    "defect8",
+                    "defect9",
+                    "defect10",
+                    "defect11",
+                    "defect12",
+                    "defect13",
+                    "defect14",
+                    "defect15",
+                    "defect16",
+                    "defect17",
+                    "defect18",
+                    "defect19",
+                    "defect20",
+                    "defect21",
+                    "defect22",
+                    "defect23",
+                    "defect24",
+                    "defect25"
+                ]
+            
+            ],
+
+            "logoName": "/opt/seeking.jpg",
+            "projectName": "苹果盒子地盖",
+            "defaultLoginAccount": "opr",
+            "defaultLoginRole": "Operator",
+            "passwordExpireInDays": 90,
+            "fullscreenInterval": 1000,
+            "cameraNumber": 5,
+            "defectNumber": 25,
+            "innerOpen": ["plc", "common"],    
+            "autoLoginDefault": true
+        },
+
+        "operation": {
+            "runAfterLogin": true,
+            "runFromSetup": true,
+            "showPurge": true,
+            "checkModeType":[{"title":"检测", "value":0}, {"title":"空跑", "value":1}],
+            "showCheck": true,
+            "showDefectAlways": true,
+            "showAllDefectTotal": true,
+            "hideSpeed": false,
+            "historyNg":
+            {
+                "show": true,
+                "splitToCamera": true,
+                "direction": "y",
+                "num": 5,
+                "size": 50,
+                "imgErrorGap": 1000
+            }
+        },
+
+        "report": {
+            "enableExportBatchSummariesToPdf": true,
+            "enableSaveFileDirectly": true,
+            "useTimestampedFilename": true,
+            "includeOkCountInRatioReport": true
+        },
+
+        "history": {
+            "imgDirs": [ 
+              {
+                "title": "结果图像",
+                "path": "/resultImage/bad",
+                "asDefault": true
+              }
+            ]
+      
+          },
+
+        "setup": 
+        {
+            "cameraParams-0":[
+                {
+                    "index": 10,
+                    "id": "exposure",
+                    "title": "曝光",
+                    "showType": "slide",
+                    "step": 1,
+                    "range": [
+                        100,
+                        10000
+                    ]
+                },
+                {
+                    "index": 11,
+                    "id": "gain",
+                    "title": "增益",
+                    "showType": "slide",
+                    "type": "int",
+                    "step": 1,
+                    "range": [
+                        0,
+                        40
+                    ]
+                },
+                {
+                    "index": 12,
+                    "id": "gammaEnable",
+                    "title": "伽马使能",
+                    "showType": "switch"
+                },
+                {
+                    "index": 13,
+                    "id": "gammaValue",
+                    "title": "伽马值",
+                    "showType": "slide",
+                    "type": "float",
+                    "precision": 1,
+                    "step": 0.1,
+                    "range": [
+                        0,
+                        10
+                    ]
+                }
+
+            ],
+
+            "cameraParams-1":[
+                {
+                    "index": 14,
+                    "id": "exposure",
+                    "title": "曝光",
+                    "showType": "slide",
+                    "step": 1,
+                    "range": [
+                        100,
+                        10000
+                    ]
+                },
+                {
+                    "index": 15,
+                    "id": "gain",
+                    "title": "增益",
+                    "showType": "slide",
+                    "type": "int",
+                    "step": 1,
+                    "range": [
+                        0,
+                        40
+                    ]
+                },
+                {
+                    "index": 16,
+                    "id": "gammaEnable",
+                    "title": "伽马使能",
+                    "showType": "switch"
+                },
+                {
+                    "index": 17,
+                    "id": "gammaValue",
+                    "title": "伽马值",
+                    "showType": "slide",
+                    "type": "float",
+                    "precision": 1,
+                    "step": 0.1,
+                    "range": [
+                        0,
+                        10
+                    ]
+                }    
+            ],
+
+            "cameraParams-2":[
+                {
+                    "index": 18,
+                    "id": "exposure",
+                    "title": "曝光",
+                    "showType": "slide",
+                    "step": 1,
+                    "range": [
+                        100,
+                        10000
+                    ]
+                },
+                {
+                    "index": 19,
+                    "id": "gain",
+                    "title": "增益",
+                    "showType": "slide",
+                    "type": "int",
+                    "step": 1,
+                    "range": [
+                        0,
+                        40
+                    ]
+                },
+                {
+                    "index": 20,
+                    "id": "gammaEnable",
+                    "title": "伽马使能",
+                    "showType": "switch"
+                },
+                {
+                    "index": 21,
+                    "id": "gammaValue",
+                    "title": "伽马值",
+                    "showType": "slide",
+                    "type": "float",
+                    "precision": 1,
+                    "step": 0.1,
+                    "range": [
+                        0,
+                        10
+                    ]
+                }    
+            ],
+
+            "cameraParams-3":[
+                {
+                    "index": 22,
+                    "id": "exposure",
+                    "title": "曝光",
+                    "showType": "slide",
+                    "step": 1,
+                    "range": [
+                        100,
+                        10000
+                    ]
+                },
+                {
+                    "index": 23,
+                    "id": "gain",
+                    "title": "增益",
+                    "showType": "slide",
+                    "type": "int",
+                    "step": 1,
+                    "range": [
+                        0,
+                        40
+                    ]
+                },
+                {
+                    "index": 24,
+                    "id": "gammaEnable",
+                    "title": "伽马使能",
+                    "showType": "switch"
+                },
+                {
+                    "index": 25,
+                    "id": "gammaValue",
+                    "title": "伽马值",
+                    "showType": "slide",
+                    "type": "float",
+                    "precision": 1,
+                    "step": 0.1,
+                    "range": [
+                        0,
+                        10
+                    ]
+                }    
+            ],
+
+            "cameraParams-4":[
+                {
+                    "index": 26,
+                    "id": "exposure",
+                    "title": "曝光",
+                    "showType": "slide",
+                    "step": 1,
+                    "range": [
+                        100,
+                        10000
+                    ]
+                },
+                {
+                    "index": 27,
+                    "id": "gain",
+                    "title": "增益",
+                    "showType": "slide",
+                    "type": "int",
+                    "step": 1,
+                    "range": [
+                        0,
+                        40
+                    ]
+                },
+                {
+                    "index": 28,
+                    "id": "gammaEnable",
+                    "title": "伽马使能",
+                    "showType": "switch"
+                },
+                {
+                    "index": 29,
+                    "id": "gammaValue",
+                    "title": "伽马值",
+                    "showType": "slide",
+                    "type": "float",
+                    "precision": 1,
+                    "step": 0.1,
+                    "range": [
+                        0,
+                        10
+                    ]
+                }    
+            ],
+
+            "cameraParams-5":[
+                {
+                    "index": 30,
+                    "id": "exposure",
+                    "title": "曝光",
+                    "showType": "slide",
+                    "step": 1,
+                    "range": [
+                        100,
+                        10000
+                    ]
+                },
+                {
+                    "index": 31,
+                    "id": "gain",
+                    "title": "增益",
+                    "showType": "slide",
+                    "type": "int",
+                    "step": 1,
+                    "range": [
+                        0,
+                        40
+                    ]
+                },
+                {
+                    "index": 32,
+                    "id": "gammaEnable",
+                    "title": "伽马使能",
+                    "showType": "switch"
+                },
+                {
+                    "index": 33,
+                    "id": "gammaValue",
+                    "title": "伽马值",
+                    "showType": "slide",
+                    "type": "float",
+                    "precision": 1,
+                    "step": 0.1,
+                    "range": [
+                        0,
+                        10
+                    ]
+                }    
+            ],
+
+            "plcParams":[
+                {
+                    "index": 34,
+                    "id": "board1_triger_dis",
+                    "title": "工位1触发距离mm"
+                },
+                {
+                    "index": 35,
+                    "id": "board2_triger_dis",
+                    "title": "工位2触发距离mm"
+
+                },
+                {
+                    "index": 36,
+                    "id": "board3_triger_dis",
+                    "title": "工位3触发距离mm"
+
+                },
+                {
+                    "index": 37,
+                    "id": "purge_dis",
+                    "title": "PLC剔除距离mm"
+
+                },
+                {
+                    "index": 38,
+                    "id": "purge_delay",
+                    "title": "PLC剔除延时ms"
+
+                },
+                {
+                    "index": 39,
+                    "id": "blow_delay",
+                    "title": "PLC吹气延时ms"
+                }         
+            ],
+
+            "commonParams":[
+                {
+                    "index": 9,
+                    "id": "num",
+                    "title": "存图数量"
+
+                }
+            ],
+            
+            "draw": { 
+                "startIndex": 110,
+                "maxLimit": [1, 1], 
+                "minLimit": [0, 0],                         
+                "types": ["检测框", "屏蔽框"]
+            },
+            
+            "showPreview": true,
+	        "showUpdate": true, 
+            "reloadAfterUpdate":true,
+            "flawParams-0": [
+                
+            ],
+
+            "flawParams-1": [
+                
+            ],
+
+            "flawParams-2": [
+                {
+                    "id": "parms_group1",
+                    "name":"检测参数",
+                    "params":[
+                        {
+                            "index": 40,
+                            "id":"parms_item1",
+                            "name":"混料检测",
+                            "paramsList": [
+                                {
+                                    "index": 41,
+                                    "id":"minNeituoHeight",
+                                    "name":"内托最小高度",
+                                    "showType": "input",
+                                    "type": "int"
+                                },
+                                {
+                                    "index": 42,
+                                    "id":"maxNeituoHeight",
+                                    "name":"内托最大高度",
+                                    "showType": "input",
+                                    "type": "int"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+
+            "flawParams-3": [
+                
+            ],
+
+            "flawParams-4": [
+                {
+                    "id": "parms_group1",
+                    "name":"检测参数",
+                    "params":[
+                        {
+                            "index": 43,
+                            "id":"parms_item1",
+                            "name":"内托间隙检测",
+                            "paramsList": [
+                                {
+                                    "index": 44,
+                                    "id":"minNeituoGap",
+                                    "name":"间隙大小",
+                                    "showType": "input",
+                                    "type": "int"
+                                }
+                            ]
+                        },
+                        {
+                            "index": 45,
+                            "id":"parms_item2",
+                            "name":"保护膜检测",
+                            "paramsList": [
+                                {
+                                    "index": 46,
+                                    "id":"baohumoEdgeArea",
+                                    "name":"保护膜边缘面积",
+                                    "showType": "input",
+                                    "type": "int"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+
+            "flawParams-5": [
+            ]
+        },
+
+        "i18n": {
+            "chn": {
+                "common": {
+                    "label": {
+                        "all": "所有",
+                        "defect1": "其他",
+                        "defect2": "凹凸点",
+						"defect3": "打皱",
+						"defect4": "撞角",
+                        "defect5": "软边",
+                        "defect6": "胶水",
+						"defect7": "砸盒",
+                        "defect8": "异色点",
+                        "defect9": "保护膜异常",
+						"defect10": "漏灰",
+                        "defect11": "划伤",
+                        "defect12": "破损",
+                        "defect13": "皱角",
+                        "defect14": "超边",
+                        "defect15": "内托拉毛",
+                        "defect16": "挂浆",
+                        "defect17": "波浪边",
+                        "defect18": "交界线白边",
+                        "defect19": "内托间隙",
+                        "defect20": "气泡",
+                        "defect21": "混料",
+                        "defect22": "预留2",
+                        "defect23": "预留3",
+                        "defect24": "预留4",
+                        "defect25": "预留5",
+                        "workStation1": "第1个工位",
+                        "workStation2": "第2个工位",
+                        "workStation3": "第3个工位",
+                        "workStation4": "第4个工位",
+                        "workStation5": "第5个工位",
+                        "workstation-1": "工位7短棱边1",
+                        "workstation-2": "工位7短棱边2",
+                        "workstation-3": "工位8棱角1",
+                        "workstation-4": "工位8棱角2",
+                        "workstation-5": "工位9地面",
+                        "workstation-1-camera-1": "相机1",
+                        "workstation-2-camera-1": "相机2",
+                        "workstation-3-camera-1": "相机3",
+                        "workstation-4-camera-1": "相机4",
+                        "workstation-5-camera-1": "相机5"
+                    }
+                },
+                "operation": {
+                    "label": {
+                        "production": "总产量:"
+                    }
+                }
+            },
+            "eng": {
+                "common": {
+                    "label": {
+                        "all": "All",
+                        "defect1": "logo deficiency",
+                        "defect2": "logo missing",
+                        "defect3": "scratch",
+                        "defect4": "edge crushed",
+                        "defect5": "wavy edge",
+                        "defect6": "fold",
+                        "defect7": "worn",
+                        "defect8": "shooting angle",
+                        "defect9": "ash leakage",
+                        "defect10": "pit",
+                        "defect11": "salient point",
+                        "defect12": "rubber residue",
+                        "defect13": "heterochroma",
+                        "defect14": "bilateral",
+                        "defect15": "hyperedge",
+                        "defect16": "soft selvedge",
+                        "defect17": "facial paper mix",
+                        "defect18": "flat card mix",
+                        "defect19": "bubble",
+                        "defect20": "vertical stripe",
+                        "defect21": "missing bulge",
+                        "defect22": "other",
+                        "workStation1": "1st Station",
+                        "workStation2": "2nd Station",
+                        "workStation3": "3rd Station",
+                        "workStation4": "4th Station",
+                        "workStation5": "5th Station"
+                    }
+                },
+                "operation": {
+                    "label": {
+                        "production": "Production:"
+                    }
+                }
+            }
+        }   
+    },
+
+    "CAMERA_IMAGE_DRAW_SCALE": [0.25, 0.25, 0.5, 0.5, 0.2],
+    "CAMERA_IMAGE_DRAW_THICKNESS":  [1, 1, 1, 1, 50],
+    "CAMERA_IMAGE_DRAW_TEXT_POS_X": [30, 30, 30, 30, 300],
+    "CAMERA_IMAGE_DRAW_TEXT_POS_Y": [60, 60, 60, 60, 300],
+    "CAMERA_IMAGE_DRAW_TEXT_FONT_SCALE": [2, 2, 2, 2, 10],
+
+    "IS_NEED_SAVE_SOURCE_IMAGE_IN_APP": true,
+    "IS_SAVE_RESIZE_RESULT_IMAGE": true,
+    "IS_NEED_SAVE_OK_RESULT_IMAGE": false,
+    "IS_USE_MULTI_THREAD_PER_CAMERA": true,
+    "IS_NEED_HANGUP_IMAGE_SAVE_THREAD_BEFORE_IMAGE_PROCESS": false,
+    "MAX_BUFFER_IMAGE_SAVE_NUM": 100,
+    
+    "IS_USE_BOARDID_KEY": true,
+    "USE_BOARDID_KEY": 4,
+    "IS_COUNT_MULTI_DEFECTS_PER_TARGET": true,
+    
+    "IS_ENABLE_HEART_BEAT_SIGNAL_CHECK": false,
+    "IS_ENABLE_SEND_SIGNAL_IN_MOCK_VIDEO": false,
+    "HEART_BEAT_SIGNAL_TIME_INTERVAL_MS": 500,
+
+    "IS_USE_IO_CARD": false,
+    "IO_CARD_DEVICE_NAME": "PCI-1730",
+    "IO_CARD_SIGNAL_TIME_MS": 20,
+    "IO_CARD_HEART_BEAT_BIT_ADDRESS": 2,
+    "IO_CARD_CAMERA_RESULT_BIT_ADDRESS": [0, 1, 2, 3, 4],
+
+    "PLC_MODBUS_TCP_IP": "192.168.1.20",
+    "PLC_MODBUS_TCP_PORT": 502,
+    "PLC_MODBUS_TCP_TIMEOUT": 20000,
+    "PLC_MODBUS_TCP_OK_RESULT_VALUE": 1,
+    "PLC_MODBUS_TCP_NG_RESULT_VALUE": 2,
+    "PLC_MODBUS_TCP_HEART_BEAT_ADDR": 1002,
+    "PLC_MODBUS_TCP_CAMERA_INPUT_REGISTER_ADDRESS":  [1212, 1213, 1214, 1215, 1216],
+    "PLC_MODBUS_TCP_CAMERA_RESULT_REGISTER_ADDRESS": [1057, 1062, 1067, 1072, 1077],
+
+    "MOCK_VIDEO_PATH": "/opt/video/digai/",
+    "MOCK_VIDEO_FILES": ["board7/cam12.avi", "board7/cam13.avi", "board8/cam14.avi", "board8/cam15.avi", "board9/cam16.avi"],
+    "MOCK_VIDEO_FRAME_TIME_INTERVAL_MS": 1000,
+
+    "CAMERA_IP": ["192.168.10.10", "192.168.20.20", "192.168.30.30", "192.168.40.40", "2332D029"],
+    "CAMERA_TYPE": ["AreaArray", "AreaArray", "AreaArray", "AreaArray", "LineScan"],
+    "CAMERA_TOTAL_IMAGES": [2, 2, 2, 2, 1],
+    "CAMERA_TIMEOUT": [8000, 8000, 8000, 8000, 8000],
+    "CAMERA_IMAGE_WIDTH":  [2448, 2448, 1440, 1440, 4096],
+    "CAMERA_IMAGE_HEIGHT": [472, 472, 1080, 1080, 2300],
+    "CAMERA_OFFSET_X": [0, 0, 0, 0, 0],
+    "CAMERA_OFFSET_Y": [472, 472, 0, 0, 0],
+    "CAMERA_FPS": [10, 10, 10, 10, 10],
+    "CAMERA_EXPOSURE": [130, 130, 150, 150, 25],
+    "CAMERA_GAMMA": [0.7, 0.7, 0.7, 0.7, 0.7],
+    "CAMERA_GAIN":  [0, 0, 0, 0, 0],
+    "CAMERA_TRIGGER_MODE": [1, 1, 1, 1, 1],
+    "CAMERA_LINE_DEBOUNCER_TIME": [50, 50, 50, 50, 50],
+    "CAMERA_PIXEL_FORMAT": ["BayerRG8", "BayerRG8", "BayerRG8", "BayerRG8", "Mono8"],
+    "CAMERA_SOFT_TRIGGER_ENABLE": [false, false, false, false, false],
+
+    "PRODUCT_LINE_CONFIG":{
+        "BOARD_TO_VIEW":[
+            [
+                0
+            ],
+            [
+                1
+            ],
+            [
+                2
+            ],
+            [
+                3
+            ],
+            [
+                4
+            ]                 
+        ],
+        "VIEW_TO_BOARD":[
+            0,
+            1,
+            2,
+            3,  
+            4               
+        ],
+        "TAERGET_IN_VIEW":[1, 1, 1, 1, 1]
+    },
+
+    "PRIVATED_ALGORITHM_FLOAT_PARAMS_CONFIG":{
+        "IS_SAVE_PROCESS_IMAGE": 0,
+	    "BOX_BINARY_THRESHOLD": 30,
+
+        "IS_CHECK_NEIDUAN_HUNLIAO": 0,
+        "HUNLIAO_NEITUO_HEIGTH_DIFF_MAX": 200,
+        "HUNLIAO_NEITUO_HEIGTH_DIFF_MIN": 20,
+
+        "IS_CHECK_BAOHUMO": 1,
+        "BAOHUMO_EDGE_AREA": 100,
+
+        "IS_CHECK_NEITUO_GAP": 0,
+        "NEITUO_GAP_UP_THRESHOLD": 70,
+        "NEITUO_GAP_DOWN_THRESHOLD": 30,
+        "NEITUO_GAP_WIDTH": 15
+    },
+
+    "PRIVATED_ALGORITHM_VECTOR_FLOAT_PARAMS_CONFIG":{
+        "NUM_CATEGORY": [25, 25, 25, 25, 25],
+        "MAX_BATCH_SIZE": [1, 1, 1, 1, 1],
+        "MNS_THRESHOLD": [0.15, 0.15, 0.15, 0.15, 0.15],
+        "CONF_THRESHOLD": [0.1, 0.1, 0.1, 0.1, 0.1],
+
+        "DEFECT_MIN_AREA": [0,16,0,0,0, 0,0,36,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0],
+
+        "ROI_OFFSET_X": [0, 0, 0, 0, 0],
+        "ROI_OFFSET_Y": [0, 0, 0, 0, 0],
+        "ROI_WIDTH":  [2448, 2448, 1440, 1440, 4096],
+        "ROI_HEIGHT": [472, 472, 1080, 1080, 2300],
+
+
+        "DISABLE_DEFECT_TYPE_DET_CAM1": [17],
+        "DISABLE_DEFECT_TYPE_DET_CAM2": [17],
+        "DISABLE_DEFECT_TYPE_DET_CAM3": [17],
+        "DISABLE_DEFECT_TYPE_DET_CAM4": [17],
+        "DISABLE_DEFECT_TYPE_DET_CAM5": [17],
+        "DISABLE_DEFECT_TYPE_DET_CAM6": [17]
+    },
+
+    "PRIVATED_ALGORITHM_STRING_PARAMS_CONFIG":{
+        "MODEL_PATH":"./models/hezi.engine"
+    }
+}

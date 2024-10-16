@@ -550,7 +550,7 @@ bool XJAppServer::runDetector(const int boardId)
 	{
 		LogERROR << "extern: Board[" << boardId << "] cleanp board and PLC remove failed";
 		m_pDetectors[boardId].m_pDetector->setCaptureImageTimes((int)CaptureImageTimes::UNKNOWN_TIMES);
-		return false;
+		// return false;
 	}
 	const double t4 = m_vTimer[boardId]->elapsed();
 	LogDEBUG << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : cleanp board and PLC remove time cost " << t4 << " seconds";

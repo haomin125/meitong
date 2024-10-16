@@ -7,3 +7,6 @@
 /.vs/slnx.sqlite
 /.vs/VSWorkspaceState.json
 /.vs/main
+.vscode/settings.json
+xj_algorithm_meitong/build/
+standardize_app_xj_server/build/

@@ -225,6 +225,13 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     // if(!(m_stParamsA.boardId==0||m_stParamsA.boardId==1)){return defectResult;}
     vector<float> is_board = m_stParamsB.vecFParams.at("is_board");
     if(m_stParamsA.boardId == is_board[0] || m_stParamsA.boardId == is_board[1] || m_stParamsA.boardId == is_board[2]){return defectResult;}
+    if(is_board.size() == 4)
+    {
+        if(debug_add == is_board[3] && is_board[3] != -1){return defectResult;}
+        debug_add++;
+        cout << "debug_add  " << debug_add << endl;
+        cout << "is_board  " << is_board[3] << endl;
+    }
     //step1: locate box
     Rect roiRect;
     if(!locateBox(image, roiRect, nCaptureTimes)) //当定位失败时，result被强制为defect1=2
@@ -320,10 +327,12 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         }
 
         //step5: save image
+        // cout << "~~~~~~~~~~~~~~~~~~~ " << m_stParamsA.pSaveImageMultiThread << endl;
         if(m_stParamsA.pSaveImageMultiThread && m_stParamsB.fParams.at("IS_SAVE_PROCESS_IMAGE"))
         {
             if(m_stParamsA.saveImageType == (int)SaveImageType::ALL || ((result != (int)DefectType::good) && m_stParamsA.saveImageType == (int)SaveImageType::NG_ONLY))
             {
+                // cout << "~------------------- " << m_stParamsA.pSaveImageMultiThread << endl;
                 string sFilePath = (result == (int)DefectType::good) ? OK_SOURCE_IMAGE_SAVE_PATH : NG_SOURCE_IMAGE_SAVE_PATH;         
                 string sCustomerEnd = "CNT" + to_string(productCount) + "-PIC" + to_string(nCaptureTimes) + "_" + m_stParamsB.vCameraNames[m_stParamsA.boardId];
                 string sFileName = getAppFormatImageNameByCurrentTimeXJ(result, m_stParamsA.boardId, 0, i, m_stParamsA.sProductName, m_stParamsA.sProductLot, sCustomerEnd);
@@ -378,11 +387,11 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
 
     Mat grayImage, binaryImage;
     cvtColor(roiImage, grayImage, COLOR_RGB2GRAY);
-    imwrite("grayImage.png", grayImage);
+    // imwrite("grayImage.png", grayImage);
     //blur(grayImage, grayImage, Size(3, 3));
     // threshold(grayImage, binaryImage, thresholdValue, 255, THRESH_BINARY_INV); //an 取反
     threshold(grayImage, binaryImage, thresholdValue, 255, thresh_binary); //an 取反
-    imwrite("binaryImage.png", binaryImage);
+    // imwrite("binaryImage.png", binaryImage);
 
     //step2: find contour
     vector<vector<Point>> contours;
@@ -394,13 +403,13 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
 
     Mat roiImage_ = roiImage.clone();
     cout << "contours.size()___" << contours.size() << endl;
-    for (size_t i = 0; i < contours.size(); i++)
-    {
-        box = boundingRect(contours[i]);
-        rectangle(roiImage_, box, Scalar(0,255,255),4);
-    }
+    // for (size_t i = 0; i < contours.size(); i++)
+    // {
+    //     box = boundingRect(contours[i]);
+    //     rectangle(roiImage_, box, Scalar(0,255,255),4);
+    // }
     // drawContours(roiImage_, contours, 936, Scalar(0,255,255), 4);
-    imwrite("rectangle.png", roiImage_);
+    // imwrite("rectangle.png", roiImage_);
 
     //step3: get max contour
     int maxIdx = 0;

@@ -479,7 +479,7 @@
 
     "IS_NEED_SAVE_SOURCE_IMAGE_IN_APP": false,
     "IS_SAVE_RESIZE_RESULT_IMAGE": false,
-    "IS_NEED_SAVE_OK_RESULT_IMAGE": false,
+    "IS_NEED_SAVE_OK_RESULT_IMAGE": true,
     "IS_USE_MULTI_THREAD_PER_CAMERA": true,
     "IS_NEED_HANGUP_IMAGE_SAVE_THREAD_BEFORE_IMAGE_PROCESS": false,
     "MAX_BUFFER_IMAGE_SAVE_NUM": 50,
@@ -512,12 +512,12 @@
     "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS": 2000,
     "PLC_MODBUS_TCP_TOTAL_DEFECT_COUNT_ADDRESS": 2004,
     "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS_LIST": [102, 106, 110, 112, 116, 118, 122, 126, 130, 134, 138],
-    "BOARD_APP_TO_REAL":[4, 4, 4, 4],
+    "BOARD_APP_TO_REAL":[4, 4, 4, -1],
 
-    "MOCK_VIDEO_PATH": "/opt/image/1014/",
-    "MOCK_VIDEO_FILES": ["image10/1_ming", "image10/2_zheng"],
+    "MOCK_VIDEO_PATH": "/opt/image/1018/",
+    "MOCK_VIDEO_FILES": ["1_an", "2_zheng"],
     "MOCK_VIDEO_FRAME_TIME_INTERVAL_MS": 1000,
-    "CAPTUREIMAGETIMES": 1,
+    "CAPTUREIMAGETIMES": 2,
 
     "PARAMS_CONFIG_PATH": "/opt/config/params_configuration.json",
 
@@ -598,7 +598,7 @@
         "MNS_THRESHOLD": [0.5, 0.5],
         "CONF_THRESHOLD": [0.5, 0.5],
         "MASK_THR": [0.5, 0.5],
-        "is_board": [4, 1, 4],
+        "is_board": [4, 4, 4, 130],
         
         "DEFECT_MIN_AREA_CAM_C1": [1,11,11,999,31,23,2,8,5,0],
         "DEFECT_MIN_DIAG_CAM_C1": [2,3,2,11,4,3,2,3,2,0],

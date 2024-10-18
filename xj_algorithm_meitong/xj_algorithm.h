@@ -108,6 +108,8 @@ private:
     cv::Mat m_templateLogoImage;
 
     cv::Ptr<cv::freetype::FreeType2> ft2 = cv::freetype::createFreeType2();
+
+    float debug_add = 0;
 };
 
 

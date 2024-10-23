@@ -408,7 +408,7 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     //     box = boundingRect(contours[i]);
     //     rectangle(roiImage_, box, Scalar(0,255,255),4);
     // }
-    // drawContours(roiImage_, contours, 936, Scalar(0,255,255), 4);
+    // drawContours(roiImage_, contours, -1, Scalar(0,255,255), 4);
     // imwrite("rectangle.png", roiImage_);
 
     //step3: get max contour

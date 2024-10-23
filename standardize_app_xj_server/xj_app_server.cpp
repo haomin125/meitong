@@ -421,7 +421,6 @@ bool XJAppServer::runDetector(const int boardId)
 	const vector<double> vScale = CustomizedJsonConfig::instance().getVector<double>("CAMERA_IMAGE_DRAW_SCALE");
 	const vector<int> vThickness = CustomizedJsonConfig::instance().getVector<int>("CAMERA_IMAGE_DRAW_THICKNESS");
 	const vector<int> boardCountAddressVec = CustomizedJsonConfig::instance().getVector<int>("PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS_LIST");
-	const vector<int> boardAppToReal = CustomizedJsonConfig::instance().getVector<int>("BOARD_APP_TO_REAL");
 
 	if(vScale.size() <= boardId)
 	{
@@ -501,7 +500,7 @@ bool XJAppServer::runDetector(const int boardId)
 	LogDEBUG << "extern: Board[" << boardId << "] process image started. \t Product count: " << m_pDetectors[boardId].m_pDetector->productCount();
 	if (nullptr != m_pIoManager)
 	{
-		const int boardCountAddress = boardCountAddressVec.at(boardAppToReal.at(boardId));
+		const int boardCountAddress = boardCountAddressVec.at(boardId);
 		int boardProductCount = 0;
 		if (dynamic_pointer_cast<AppIoManagerPLC>(m_pIoManager)->readRegister(boardCountAddress, boardProductCount))
 		{
@@ -610,8 +609,7 @@ bool XJAppServer::parametersTest(const int boardId)
 		if (nullptr != m_pIoManager)
 		{
 			const vector<int> boardCountAddressVec = CustomizedJsonConfig::instance().getVector<int>("PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS_LIST");
-			const vector<int> boardAppToReal = CustomizedJsonConfig::instance().getVector<int>("BOARD_APP_TO_REAL");
-			const int boardCountAddress = boardCountAddressVec.at(boardAppToReal.at(boardId));
+			const int boardCountAddress = boardCountAddressVec.at(boardId);
 			int boardProductCount = 0;
 			dynamic_pointer_cast<AppIoManagerPLC>(m_pIoManager)->readRegister(boardCountAddress, boardProductCount);
 			m_pDetectors[boardId].m_pDetector->updateProductCountofWorkflow(boardProductCount);

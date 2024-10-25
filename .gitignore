@@ -10,3 +10,4 @@
 .vscode/settings.json
 xj_algorithm_meitong/build/
 standardize_app_xj_server/build/
+alarm_event.db

@@ -332,7 +332,7 @@ void XJAppServer::initMockCameras(const string &filePath)
 	{
 		cameraNames[camIdx] = make_pair("CAM" + to_string(camIdx), "Mock Camera " + to_string(camIdx + 1));
 		// pConfig[camIdx] = make_shared<MockCameraConfig>("null.pb", sMockPath + vMockFile[camIdx]);
-		pConfig[camIdx] = make_shared<MockDirectoryConfig>("null.pb", sMockPath + vMockFile[camIdx], ".jpg");
+		pConfig[camIdx] = make_shared<MockDirectoryConfig>("null.pb", sMockPath + vMockFile[camIdx], ".png");
 	}
 
 	// init mock cameras

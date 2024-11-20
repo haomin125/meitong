@@ -361,9 +361,9 @@ bool getMaxContour(const vector<vector<Point>>& contours, int &maxAreaIdx, float
     maxAreaIdx = -1;
     maxContourArea = 0.0;
     Rect box;
-    int widthThr1 = 2100;
+    int widthThr1 = 1900;
     int widthThr2 = 2900;
-    int heightThr1 = 2100;
+    int heightThr1 = 1900;
     int heightThr2 = 2900;
     for (int i = 0; i != contours.size(); i++)
     {

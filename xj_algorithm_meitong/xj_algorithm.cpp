@@ -269,26 +269,27 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     // cv::Point center2 = center1;
     int radius2 = 1280;     //留了一点点背景区
     cv::circle(mask2, center, radius2, cv::Scalar(255), -1);
-    // imwrite("/opt/test/mask2.png", mask2);
-    // imwrite("/opt/test/roiImage.png", roiImage);
+    // imwrite("/opt/app/test/mask2.png", mask2);
+    imwrite("/opt/app/test/roiImage.png", roiImage);
     //STEP3: 屏蔽背景区域,用mask2和输入图片做bitwise_and
     cv::Mat roiImage_;
     cv::bitwise_and(roiImage, roiImage, roiImage_, mask2);
     // roiImage.copyTo(roiImage_,mask2);
-    // imwrite("/opt/test/roiImage_.png", roiImage_);
+    imwrite("/opt/app/test/roiImage_.png", roiImage_);
 
     // 红光暗场屏蔽区域
     if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
     // if(m_stParamsA.boardId == 1)
     {
-        int radius3 = 1100;
+        // int radius3 = 1100; 
+        int radius3 = 900; 
         cv::Mat mask3 = cv::Mat::ones(maskH1, maskW1, CV_8UC1);  //CV_8UC1：8位单通道图像
         cv::circle(mask3, center, radius3, cv::Scalar(0), -1);
         cv::Mat dst;
         roiImage_.copyTo(dst,mask3);
         roiImage_ = dst.clone();
     }
-
+        imwrite("/opt/app/test/红光暗场屏蔽区域.png", roiImage_);
     //step3:split ROI 
     vector<Rect> vTargetRect;
     vector<Mat> vTargetImage;
@@ -387,11 +388,11 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
 
     Mat grayImage, binaryImage;
     cvtColor(roiImage, grayImage, COLOR_RGB2GRAY);
-    // imwrite("grayImage.png", grayImage);
+    imwrite("/opt/app/test/grayImage.png", grayImage);
     //blur(grayImage, grayImage, Size(3, 3));
     // threshold(grayImage, binaryImage, thresholdValue, 255, THRESH_BINARY_INV); //an 取反
     threshold(grayImage, binaryImage, thresholdValue, 255, thresh_binary); //an 取反
-    // imwrite("binaryImage.png", binaryImage);
+    imwrite("/opt/app/test/binaryImage.png", binaryImage);
 
     //step2: find contour
     vector<vector<Point>> contours;
@@ -403,13 +404,13 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
 
     Mat roiImage_ = roiImage.clone();
     cout << "contours.size()___" << contours.size() << endl;
-    // for (size_t i = 0; i < contours.size(); i++)
-    // {
-    //     box = boundingRect(contours[i]);
-    //     rectangle(roiImage_, box, Scalar(0,255,255),4);
-    // }
+    for (size_t i = 0; i < contours.size(); i++)
+    {
+        box = boundingRect(contours[i]);
+        rectangle(roiImage_, box, Scalar(0,255,255),4);
+    }
     // drawContours(roiImage_, contours, -1, Scalar(0,255,255), 4);
-    // imwrite("rectangle.png", roiImage_);
+    imwrite("/opt/app/test/rectangle.png", roiImage_);
 
     //step3: get max contour
     int maxIdx = 0;
@@ -423,6 +424,10 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
 
     //step4: get max bounding box and return result
     box = boundingRect(contours[maxIdx]);
+    // Mat getMaxContour_ = roiImage.clone();
+    // rectangle(getMaxContour_, box, Scalar(0,255,255),4);
+    // imwrite("/opt/app/test/getMaxContour_.png", getMaxContour_);
+
     cout << "box.width:" << box.width << endl;
     cout << "box.height:" << box.height << endl;
 

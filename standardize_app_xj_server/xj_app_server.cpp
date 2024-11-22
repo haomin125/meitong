@@ -332,7 +332,7 @@ void XJAppServer::initMockCameras(const string &filePath)
 	{
 		cameraNames[camIdx] = make_pair("CAM" + to_string(camIdx), "Mock Camera " + to_string(camIdx + 1));
 		// pConfig[camIdx] = make_shared<MockCameraConfig>("null.pb", sMockPath + vMockFile[camIdx]);
-		pConfig[camIdx] = make_shared<MockDirectoryConfig>("null.pb", sMockPath + vMockFile[camIdx], ".png");
+		pConfig[camIdx] = make_shared<MockDirectoryConfig>("null.pb", sMockPath + vMockFile[camIdx], ".jpg");
 	}
 
 	// init mock cameras
@@ -457,6 +457,38 @@ bool XJAppServer::runDetector(const int boardId)
 	}
 	else
 	{
+
+		//set capture image times in detector
+		m_pDetectors[boardId].m_pDetector->setCaptueImageTimesBySignal();	
+		if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::UNKNOWN_TIMES);
+		{
+			// return true;
+		}		
+		shared_ptr<HaikangCameraConfig> pConfig = dynamic_pointer_cast<HaikangCameraConfig>(m_cameras[boardId][0]->config());
+		if(!pConfig)
+		{
+			LogERROR << "Board[" << boardId << "] no camera config";
+			return false;
+		}
+		if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::FIRST_TIMES)
+		{
+			vector<float> vExposure = CustomizedJsonConfig::instance().getVector<float>("CAMERA_EXPOSURE_FIRST");
+			vector<float> vGain = CustomizedJsonConfig::instance().getVector<float>("CAMERA_GAIN_FRIST");
+			pConfig->setExposure(vExposure[boardId]);	
+			pConfig->setGain(vGain[boardId]);			
+			pConfig->setConfig();
+		}
+		else if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::UNKNOWN_TIMES)
+		{
+			vector<float> vExposure = CustomizedJsonConfig::instance().getVector<float>("CAMERA_EXPOSURE_SECOND");
+			vector<float> vGain = CustomizedJsonConfig::instance().getVector<float>("CAMERA_GAIN_SECOND");
+			pConfig->setExposure(vExposure[boardId]);	
+			pConfig->setGain(vGain[boardId]);		
+			// const float fExposure = RunningInfo::instance().GetProductSetting().GetFloatSetting(int(ProductSettingFloatMapper::SECOND_CAPTURE_EXPOSURE_VALUE));
+			// pConfig->setExposure(fExposure);		
+			pConfig->setConfig();	
+		}
+
 		//////////////////////////// STEP1: get next image ////////////////////////////
 		// product count will be increased if get next frame sucessfully, to make log//
 		// consistant, we add 1 here instead                                         //
@@ -479,9 +511,7 @@ bool XJAppServer::runDetector(const int boardId)
 				}
 			}
 			return false;
-		}
-		//set capture image times in detector
-		m_pDetectors[boardId].m_pDetector->setCaptueImageTimesBySignal();		
+		}	
 		const double t1 = m_vTimer[boardId]->elapsed();
 		LogDEBUG << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : get image time cost " << t1  << " seconds";
 	}

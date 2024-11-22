@@ -462,7 +462,7 @@ bool XJAppServer::runDetector(const int boardId)
 		m_pDetectors[boardId].m_pDetector->setCaptueImageTimesBySignal();	
 		if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::UNKNOWN_TIMES);
 		{
-			// return true;
+			return true;
 		}		
 		shared_ptr<HaikangCameraConfig> pConfig = dynamic_pointer_cast<HaikangCameraConfig>(m_cameras[boardId][0]->config());
 		if(!pConfig)

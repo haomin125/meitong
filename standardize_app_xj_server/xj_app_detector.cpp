@@ -368,14 +368,14 @@ void AppDetector::setCaptueImageTimesBySignal()
 			cout << " !!!!!!!!!!!!!!!!" << endl;
 			LogINFO << "extern: Board[" << boardID << "] read input data for first image capture signal:" << value << " from PLC register address:" << address;
 			m_iCaptureTimes = (int)CaptureImageTimes::FIRST_TIMES;
-			dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 0);
+			// dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 0);
 		}
 		else if (value == 2)
 		{
 			cout << " !!!!!!!!!!!!!!!!" << endl;
 			LogINFO << "extern: Board[" << boardID << "] read input data for first image capture signal:" << value << " from PLC register address:" << address;
 			m_iCaptureTimes = (int)CaptureImageTimes::SECOND_TIMES;
-			dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 0);
+			// dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 0);
 		}		
 		else
 		{

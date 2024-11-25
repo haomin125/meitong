@@ -477,7 +477,7 @@
     "CAMERA_IMAGE_DRAW_TEXT_POS_Y": [100, 100],
     "CAMERA_IMAGE_DRAW_TEXT_FONT_SCALE": [4, 4],
 
-    "IS_NEED_SAVE_SOURCE_IMAGE_IN_APP": false,
+    "IS_NEED_SAVE_SOURCE_IMAGE_IN_APP": true,
     "IS_SAVE_RESIZE_RESULT_IMAGE": false,
     "IS_NEED_SAVE_OK_RESULT_IMAGE": true,
     "IS_USE_MULTI_THREAD_PER_CAMERA": true,
@@ -506,29 +506,31 @@
     "PLC_MODBUS_TCP_OK_RESULT_VALUE": 1,
     "PLC_MODBUS_TCP_NG_RESULT_VALUE": 2,
     "PLC_MODBUS_TCP_HEART_BEAT_ADDRESS": 100,
-    "PLC_MODBUS_TCP_CAMERA_INPUT_REGISTER_ADDRESS":  [120, 121],
-    "PLC_MODBUS_TCP_CAMERA_RESULT_REGISTER_ADDRESS": [1, 2],
+    "PLC_MODBUS_TCP_CAMERA_INPUT_REGISTER_ADDRESS":  [106, 108],
+    "PLC_MODBUS_TCP_CAMERA_RESULT_REGISTER_ADDRESS": [102, 104],
 
     "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS": 2000,
     "PLC_MODBUS_TCP_TOTAL_DEFECT_COUNT_ADDRESS": 2004,
-    "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS_LIST": [102, 106],
+    "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS_LIST": [1050, 1052],
 
-    "MOCK_VIDEO_PATH": "/opt/image/1110/",
-    "MOCK_VIDEO_FILES": ["an汇总/1", "bei汇总/1"],
+    "MOCK_VIDEO_PATH": "/opt/image/",
+    "MOCK_VIDEO_FILES": ["ming", "bei"],
     "MOCK_VIDEO_FRAME_TIME_INTERVAL_MS": 1000,
-    "CAPTUREIMAGETIMES": 2,
+    "CAPTUREIMAGETIMES": 1,
+    
+    
 
     "PARAMS_CONFIG_PATH": "/opt/config/params_configuration.json",
 
     "CAMERA_NAME":["CAM1", "CAM2"],
-    "CAMERA_IP": ["192.168.10.10", "192.168.20.20"],
+    "CAMERA_IP": ["192.168.20.20", "192.168.10.10"],
     "CAMERA_TYPE": ["AreaArray", "AreaArray"],
     "CAMERA_TOTAL_IMAGES": [2, 2],
     "CAMERA_TIMEOUT": [8000, 8000],
-    "CAMERA_IMAGE_WIDTH":  [4096, 4096],
-    "CAMERA_IMAGE_HEIGHT": [1000, 1168],
+    "CAMERA_IMAGE_WIDTH":  [5120, 5120],
+    "CAMERA_IMAGE_HEIGHT": [5120, 5120],
     "CAMERA_OFFSET_X": [0, 0],
-    "CAMERA_OFFSET_Y": [500, 648],
+    "CAMERA_OFFSET_Y": [0, 0],
     "CAMERA_FPS": [10, 10],
     "CAMERA_EXPOSURE": [1212, 130],
     "CAMERA_EXPOSURE_FIRST": [2000, 1400],
@@ -540,7 +542,7 @@
     "CAMERA_TRIGGER_MODE": [1, 1],
     "CAMERA_LINE_DEBOUNCER_TIME": [50, 50],
     "CAMERA_PIXEL_FORMAT": ["BayerRG8", "BayerRG8"],
-    "CAMERA_SOFT_TRIGGER_ENABLE": [false, false],
+    "CAMERA_SOFT_TRIGGER_ENABLE": [true, true],
 
     "PRODUCT_LINE_CONFIG":{
         "BOARD_TO_VIEW":[
@@ -549,7 +551,7 @@
             ],
             [
                 1
-            ]        
+            ]               
         ],
         "VIEW_TO_BOARD":[
             0,
@@ -601,7 +603,7 @@
         "MNS_THRESHOLD": [0.5, 0.5],
         "CONF_THRESHOLD": [0.5, 0.5],
         "MASK_THR": [0.5, 0.5],
-        "is_board": [1, 0, 4, 41],
+        "is_board": [4, 4, 4, 98],
         
         "DEFECT_MIN_AREA_CAM_C1": [1,11,11,999,31,23,2,8,5,0],
         "DEFECT_MIN_DIAG_CAM_C1": [2,3,2,11,4,3,2,3,2,0],
@@ -638,8 +640,8 @@
     },
 
     "PRIVATED_ALGORITHM_STRING_PARAMS_CONFIG":{
-        "MODEL_PATH_CAM1":"./models/best_1111.engine",
-        "MODEL_PATH_CAM2":"./models/best_1111.engine",
+        "MODEL_PATH_CAM1":"./models/best_1108.engine",
+        "MODEL_PATH_CAM2":"./models/best_1108.engine",
         "MIANZHI_HUNLIAO_MODEL_PATH": "./models/tiangai/tiangaihunbanemb.engine",
 
         "MIANZHI_HUNLIAO_MODEL_EMB_PATH": "./models/tiangai/tiangaihunban.json",

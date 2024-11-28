@@ -224,10 +224,20 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     }
     // if(!(m_stParamsA.boardId==0||m_stParamsA.boardId==1)){return defectResult;}
     vector<float> is_board = m_stParamsB.vecFParams.at("is_board");
-    if(m_stParamsA.boardId == is_board[0] || m_stParamsA.boardId == is_board[1] || m_stParamsA.boardId == is_board[2]){return defectResult;}
+    if(m_stParamsA.boardId == is_board[0] || m_stParamsA.boardId == is_board[1] || m_stParamsA.boardId == is_board[2])
+    {
+        result = (int)DefectType::defect1;
+        defectResult[0].emplace_back(result);
+        return defectResult;
+    }
     if(is_board.size() == 4)
     {
-        if(debug_add == is_board[3] && is_board[3] != -1){return defectResult;}
+        if(debug_add == is_board[3] && is_board[3] != -1)
+        {
+            result = (int)DefectType::defect1;
+            defectResult[0].emplace_back(result);
+            return defectResult;
+        }
         debug_add++;
         cout << "debug_add  " << debug_add << endl;
         cout << "is_board  " << is_board[3] << endl;
@@ -278,7 +288,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     imwrite("/opt/app/test/roiImage_.png", roiImage_);
 
     // 红光暗场屏蔽区域
-    if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
+    if(nCaptureTimes == 1 && m_stParamsA.boardId == 0)
     // if(m_stParamsA.boardId == 1)
     {
         // int radius3 = 1100; 
@@ -298,7 +308,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         cout << "ERROR extractROI" << endl; 
         result = (int)DefectType::defect1;
         defectResult[0].emplace_back(result);
-        imwrite("extractROI.png", roiImage);
+        imwrite("/opt/app/test/extractROI.png", roiImage);
         return defectResult;
     }
 

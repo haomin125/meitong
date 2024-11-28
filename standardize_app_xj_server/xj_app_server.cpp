@@ -457,7 +457,6 @@ bool XJAppServer::runDetector(const int boardId)
 	}
 	else
 	{
-
 		//set capture image times in detector
 		m_pDetectors[boardId].m_pDetector->setCaptueImageTimesBySignal();	
 		if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::UNKNOWN_TIMES)

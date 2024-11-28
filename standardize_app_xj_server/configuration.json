@@ -513,12 +513,10 @@
     "PLC_MODBUS_TCP_TOTAL_DEFECT_COUNT_ADDRESS": 2004,
     "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS_LIST": [1050, 1052],
 
-    "MOCK_VIDEO_PATH": "/opt/image/",
-    "MOCK_VIDEO_FILES": ["ming", "bei"],
+    "MOCK_VIDEO_PATH": "/opt/image/1023/image/",
+    "MOCK_VIDEO_FILES": ["1_an", "2_zheng"],
     "MOCK_VIDEO_FRAME_TIME_INTERVAL_MS": 1000,
-    "CAPTUREIMAGETIMES": 1,
-    
-    
+    "CAPTUREIMAGETIMES": 0,
 
     "PARAMS_CONFIG_PATH": "/opt/config/params_configuration.json",
 
@@ -551,11 +549,11 @@
             ],
             [
                 1
-            ]               
+            ]                  
         ],
         "VIEW_TO_BOARD":[
             0,
-            1              
+            1               
         ],
         "TAERGET_IN_VIEW":[25, 25]
     },
@@ -603,7 +601,7 @@
         "MNS_THRESHOLD": [0.5, 0.5],
         "CONF_THRESHOLD": [0.5, 0.5],
         "MASK_THR": [0.5, 0.5],
-        "is_board": [4, 4, 4, 98],
+        "is_board": [4, 4, 4, -1],
         
         "DEFECT_MIN_AREA_CAM_C1": [1,11,11,999,31,23,2,8,5,0],
         "DEFECT_MIN_DIAG_CAM_C1": [2,3,2,11,4,3,2,3,2,0],
@@ -611,7 +609,7 @@
         "DEFECT_MIN_AREA_CAM_NC1": [3,2222,33,33,444,231,23,3,3,0],
         "DEFECT_MIN_DIAG_CAM_NC1": [1,22,11,21,4,6,3,2,2,0],
         "DEFECT_MIN_PROB_CAM_NC1": [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
-        "BOX_BINARY_THRESHOLD1":[5, 10],
+        "BOX_BINARY_THRESHOLD1":[10, 5],
         "BOX_BINARY_AREA_THRESHOLD1":[40000, 40000],
 
         "DEFECT_MIN_AREA_CAM_C2": [1,11,11,999,31,23,2,8,5,0],
@@ -620,7 +618,7 @@
         "DEFECT_MIN_AREA_CAM_NC2": [3,2222,33,33,444,231,23,3,3,0],
         "DEFECT_MIN_DIAG_CAM_NC2": [1,22,11,21,4,6,3,2,2,0],
         "DEFECT_MIN_PROB_CAM_NC2": [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
-        "BOX_BINARY_THRESHOLD2":[210, 30],
+        "BOX_BINARY_THRESHOLD2":[30, 210],
         "BOX_BINARY_AREA_THRESHOLD2":[40000, 40000],
 
 

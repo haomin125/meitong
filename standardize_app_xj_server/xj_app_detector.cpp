@@ -360,8 +360,7 @@ void AppDetector::setCaptueImageTimesBySignal()
 		*/
 		int value = 0;
 		const int address = CustomizedJsonConfig::instance().getVector<int>("PLC_MODBUS_TCP_CAMERA_INPUT_REGISTER_ADDRESS")[boardID];			
-		dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->readRegister(address, value);		
-		cout << "extern: Board[" << boardID << "] read input data for first image capture signal:" << value << " from PLC register address:" << address << endl;;
+		dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->readRegister(address, value);
 		if(value == 1)
 		{
 			LogINFO << "extern: Board[" << boardID << "] read input data for first image capture signal:" << value << " from PLC register address:" << address;

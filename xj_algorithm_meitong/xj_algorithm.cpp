@@ -405,7 +405,7 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     imwrite("/opt/app/test/binaryImage.png", binaryImage);
 
     //test houghcirle
-    Hough_Circle(grayImage);
+    // Hough_Circle(grayImage);
     //step2: find contour
     vector<vector<Point>> contours;
     findContours(binaryImage, contours, 1, CHAIN_APPROX_SIMPLE);

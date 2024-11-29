@@ -356,15 +356,15 @@ bool getOffsetPolyMasks(Mat& canvas,vector<Point2i>& offsets,vector<vector<Point
     return true;
 }
 
-bool Hough_Circle(const cv::Mat &image)
-{
-    Mat grayImg = image.clone();
-    Mat thresholdImg;
-    Canny(grayImg, thresholdImg, 10, 20);
-    vector<Vec3f> vCircles;
-    HoughCircles(thresholdImg, vCircles, 1, 1, 20, 12, 21, 12, 12);
-    return true;
-}
+// bool Hough_Circle(const cv::Mat &image)
+// {
+//     Mat grayImg = image.clone();
+//     Mat thresholdImg;
+//     Canny(grayImg, thresholdImg, 10, 20);
+//     vector<Vec3f> vCircles;
+//     HoughCircles(thresholdImg, vCircles, 1, 1, 20, 12, 21, 12, 12);
+//     return true;
+// }
 
 bool getMaxContour(const vector<vector<Point>>& contours, int &maxAreaIdx, float& maxContourArea)
 {

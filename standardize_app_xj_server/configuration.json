@@ -601,7 +601,7 @@
         "MNS_THRESHOLD": [0.5, 0.5],
         "CONF_THRESHOLD": [0.5, 0.5],
         "MASK_THR": [0.5, 0.5],
-        "is_board": [0, 4, 4, -1],
+        "is_board": [4, 4, 4, -1],
         
         "DEFECT_MIN_AREA_CAM_C1": [1,11,11,999,31,23,2,8,5,0],
         "DEFECT_MIN_DIAG_CAM_C1": [2,3,2,11,4,3,2,3,2,0],

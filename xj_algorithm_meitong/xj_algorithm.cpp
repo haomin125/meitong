@@ -288,7 +288,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     imwrite("/opt/app/test/roiImage_.png", roiImage_);
 
     // 红光暗场屏蔽区域
-    if(nCaptureTimes == 1 && m_stParamsA.boardId == 0)
+    if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
     // if(m_stParamsA.boardId == 1)
     {
         // int radius3 = 1100; 
@@ -404,6 +404,8 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     threshold(grayImage, binaryImage, thresholdValue, 255, thresh_binary); //an 取反
     imwrite("/opt/app/test/binaryImage.png", binaryImage);
 
+    //test houghcirle
+    Hough_Circle(grayImage);
     //step2: find contour
     vector<vector<Point>> contours;
     findContours(binaryImage, contours, 1, CHAIN_APPROX_SIMPLE);

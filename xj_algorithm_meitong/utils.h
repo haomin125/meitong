@@ -197,7 +197,7 @@ bool selectChannel(const cv::Mat &input, cv::Mat& output, int channelIndex);
 bool getOffsetPolyMasks(cv::Mat& canvas, std::vector<cv::Point2i>& offsets, std::vector<std::vector<cv::Point2f>>& multipliers, cv::Rect& objRect);
 
 bool getMaxContour(const std::vector<std::vector<cv::Point>>& contours, int &maxAreaIdx, float& maxContourArea);
-
+bool Hough_Circle(const cv::Mat &image);
 bool findHorizontalEdge(const cv::Mat &roiImage, int &x, int iThresh, bool bIsReverse, bool bIsDarkLight);
 bool findVerticalEdge(const cv::Mat &roiImage, int &y, int iThresh, bool bIsReverse, bool bIsDarkLight);
 

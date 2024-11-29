@@ -477,7 +477,7 @@ bool XJAppServer::runDetector(const int boardId)
 			pConfig->setGain(vGain[boardId]);			
 			pConfig->setConfig();
 		}
-		else if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::UNKNOWN_TIMES)
+		else if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::SECOND_TIMES)
 		{
 			vector<float> vExposure = CustomizedJsonConfig::instance().getVector<float>("CAMERA_EXPOSURE_SECOND");
 			vector<float> vGain = CustomizedJsonConfig::instance().getVector<float>("CAMERA_GAIN_SECOND");

@@ -384,14 +384,14 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     {  
         thresholdValue = m_stParamsB.vecFParams.at("BOX_BINARY_THRESHOLD" + to_string(m_stParamsA.boardId + 1))[0];
         areaThreshold  = m_stParamsB.vecFParams.at("BOX_BINARY_AREA_THRESHOLD" + to_string(m_stParamsA.boardId + 1))[0]; //大约2500*2500
-        thresh_binary = 1;  //
+        thresh_binary = 0;  //
     }
     if(nCaptureTimes == 2)
     // if(m_stParamsA.boardId == 1 ||m_stParamsA.boardId == 3)
     {
         thresholdValue = m_stParamsB.vecFParams.at("BOX_BINARY_THRESHOLD" + to_string(m_stParamsA.boardId + 1))[1];
         areaThreshold  = m_stParamsB.vecFParams.at("BOX_BINARY_AREA_THRESHOLD" + to_string(m_stParamsA.boardId + 1))[1]; //大约2500*2500
-        thresh_binary = 0;
+        thresh_binary = 1;
     }
     //通过传统算法判断是4种图像中的哪种图像？根据判断结果设置BOX_BINARY_THRESHOLD和BOX_BINARY_AREA_THRESHOLD参数
 

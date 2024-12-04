@@ -322,6 +322,7 @@ void XJAppServer::initProductCameras()
 void XJAppServer::initMockCameras(const string &filePath)
 {
 	const string sMockPath = CustomizedJsonConfig::instance().get<string>("MOCK_VIDEO_PATH");
+	const string sType = CustomizedJsonConfig::instance().get<string>("MOCK_VIDEO_TYPE");
 	const vector<string> vMockFile = CustomizedJsonConfig::instance().getVector<string>("MOCK_VIDEO_FILES");
 	const int numCam = m_pProductLine->getConfig()->totalViews();
 
@@ -332,7 +333,7 @@ void XJAppServer::initMockCameras(const string &filePath)
 	{
 		cameraNames[camIdx] = make_pair("CAM" + to_string(camIdx), "Mock Camera " + to_string(camIdx + 1));
 		// pConfig[camIdx] = make_shared<MockCameraConfig>("null.pb", sMockPath + vMockFile[camIdx]);
-		pConfig[camIdx] = make_shared<MockDirectoryConfig>("null.pb", sMockPath + vMockFile[camIdx], ".jpg");
+		pConfig[camIdx] = make_shared<MockDirectoryConfig>("null.pb", sMockPath + vMockFile[camIdx], sType);
 	}
 
 	// init mock cameras

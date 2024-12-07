@@ -606,7 +606,7 @@ void AppWorkflow::drawDesignedTargets(const double scale, const int thickness)
 		return;
 	}
 
-	Scalar color = bIsOK ? Scalar(0, 255, 0) : Scalar(0, 0, 255);
+	Scalar color = bIsOK ? Scalar(0, 255, 0) : Scalar(255, 0, 255);
 	// string sText = "pic" + to_string(m_nCaptureImageTimes) + "/"  + to_string(m_nTotalCaptureTimes);
 	string sText = "pic" + to_string(m_nCaptureImageTimes);
 	sText += bIsOK ? "-OK": "-NG";

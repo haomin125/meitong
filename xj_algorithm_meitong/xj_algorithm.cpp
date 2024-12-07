@@ -372,6 +372,8 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
         return false;
     }
     Mat roiImage = image(roiRC);
+    Mat resizeImg;
+    resize(roiImage, resizeImg, Size(roiImage.cols/10, roiImage.rows /10));
 
     //step1: preprocess
     // int thresholdValue  = m_stParamsB.fParams.at("BOX_BINARY_THRESHOLD");
@@ -397,24 +399,39 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
 
 
     Mat grayImage, binaryImage;
-    cvtColor(roiImage, grayImage, COLOR_RGB2GRAY);
+    cvtColor(resizeImg, grayImage, COLOR_RGB2GRAY);
     imwrite("/opt/app/test/grayImage.png", grayImage);
     //blur(grayImage, grayImage, Size(3, 3));
     // threshold(grayImage, binaryImage, thresholdValue, 255, THRESH_BINARY_INV); //an 取反
-    threshold(grayImage, binaryImage, thresholdValue, 255, thresh_binary); //an 取反
+    if (nCaptureTimes == 2)
+    {
+        Mat bilater, edges;
+        int lvbo = m_stParamsB.vecFParams.at("LVBO")[0];
+        int lowthre = m_stParamsB.vecFParams.at("LOWTHRE")[0];
+        bilateralFilter(grayImage, bilater, lvbo, lvbo, lvbo);
+        Canny(bilater, binaryImage, lowthre, 20);
+        // imwrite("/opt/app/test/bilater.png", bilater);
+    }
+    else
+    {
+        threshold(grayImage, binaryImage, thresholdValue, 255, thresh_binary); //an 取反
+    }
+    
+    Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
+    morphologyEx(binaryImage, binaryImage, MORPH_CLOSE, kernel);
     imwrite("/opt/app/test/binaryImage.png", binaryImage);
 
     //test houghcirle
     // Hough_Circle(grayImage);
     //step2: find contour
     vector<vector<Point>> contours;
-    findContours(binaryImage, contours, 1, CHAIN_APPROX_SIMPLE);
+    findContours(binaryImage, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
     if(contours.size() == 0)
     {
         return false;
     }
 
-    Mat roiImage_ = roiImage.clone();
+    Mat roiImage_ = resizeImg.clone();
     cout << "contours.size()___" << contours.size() << endl;
     for (size_t i = 0; i < contours.size(); i++)
     {
@@ -436,6 +453,10 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
 
     //step4: get max bounding box and return result
     box = boundingRect(contours[maxIdx]);
+    box.x *= 10; //左上角横坐标
+    box.y *= 10; //左上角纵坐标
+    box.width *= 10;
+    box.height *= 10;
     // Mat getMaxContour_ = roiImage.clone();
     // rectangle(getMaxContour_, box, Scalar(0,255,255),4);
     // imwrite("/opt/app/test/getMaxContour_.png", getMaxContour_);
@@ -694,7 +715,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
             
             if (tempS > m_vMinDefectArea[(int)det.id] && diagL >= m_vMinDefectDiag[(int)det.id] && det.confidence >= m_vMinDefectProb[(int)det.id] && whiteArea >= 1)
             {  
-                Scalar scalar = Scalar(0,0,255);
+                Scalar scalar = Scalar(0,255,255);
                 // value = (int)LocalLevel::C;
                 result = objectId + 2;  //good是1，瑕疵从2开始
                 defectResult[0].emplace_back(result);

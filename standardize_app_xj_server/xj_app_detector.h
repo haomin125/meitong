@@ -50,6 +50,7 @@ private:
 	int m_iPlcProductNumber = 0;   //每个工位上PLC寄存器的计数值
 	ClassificationResult PLC_result = 1;
 	bool bIs_PLC = false;
+	int m_SecondResult;//暗场拍照结果保存不发送
 };
 
 #endif // XJ_APP_DETECTOR_H

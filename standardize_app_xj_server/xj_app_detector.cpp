@@ -124,12 +124,27 @@ bool AppDetector::sendResultSignalToPLC(const bool bIsResultOK)
 		}		
 		const vector<int> vAddress = CustomizedJsonConfig::instance().getVector<int>("PLC_MODBUS_TCP_CAMERA_RESULT_REGISTER_ADDRESS");//发送结果信号PLC寄存器地址
 		const int address = vAddress[boardID];//PLC寄存器器地址（根据实际信号分配填写）
-		if(!dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, data))
+		cout << "m_iCaptureTimes------------------ " << m_iCaptureTimes << endl;
+		if(m_iCaptureTimes  == (int)CaptureImageTimes::FIRST_TIMES)
 		{
-			LogERROR << "extern: Board[" << boardID << "] failed to send result data:" << data << " to PLC register address:" << address;
-			return false;
+			if (m_SecondResult != iOKData)
+			{
+				data = iNGData;
+			}
+			m_SecondResult = iNGData;
+			if(!dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, data))
+			{
+				LogERROR << "extern: Board[" << boardID << "] failed to send result data:" << data << " to PLC register address:" << address;
+				return false;
+			}
+			LogINFO << "extern: Board[" << boardID << "] send " << (purgeSignal == (int)PLCSinal::OK ? "ok" : "ng") << " result data:" << data << " to PLC register address:" << address;
 		}
-		LogINFO << "extern: Board[" << boardID << "] send " << (purgeSignal == (int)PLCSinal::OK ? "ok" : "ng") << " result data:" << data << " to PLC register address:" << address;
+		else
+		{
+			m_SecondResult = data;
+			LogINFO << "extern: Board[" << boardID << "] send " << (purgeSignal == (int)PLCSinal::OK ? "ok" : "ng") << " save data:" << data;
+			cout << "m_SecondResult------------------ " << m_SecondResult << endl;
+		}
 	}
 	return true;
 }

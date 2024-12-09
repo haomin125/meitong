@@ -344,8 +344,8 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
             if(m_stParamsA.saveImageType == (int)SaveImageType::ALL || ((result != (int)DefectType::good) && m_stParamsA.saveImageType == (int)SaveImageType::NG_ONLY))
             {
                 // cout << "~------------------- " << m_stParamsA.pSaveImageMultiThread << endl;
-                string sFilePath = (result == (int)DefectType::good) ? OK_SOURCE_IMAGE_SAVE_PATH : NG_SOURCE_IMAGE_SAVE_PATH;         
-                string sCustomerEnd = "CNT" + to_string(productCount) + "-PIC" + to_string(nCaptureTimes) + "_" + m_stParamsB.vCameraNames[m_stParamsA.boardId];
+                string sFilePath = (result == (int)DefectType::good) ? OK_SOURCE_IMAGE_SAVE_PATH : NG_SOURCE_IMAGE_SAVE_PATH;     
+                string sCustomerEnd = "CNT" + to_string((productCount-1) / 5 + 1) + "-" + to_string(productCount % 5 == 0 ? 5 : productCount % 5)  + "-PIC" + to_string(nCaptureTimes) + "_" + m_stParamsB.vCameraNames[m_stParamsA.boardId];
                 string sFileName = getAppFormatImageNameByCurrentTimeXJ(result, m_stParamsA.boardId, 0, i, m_stParamsA.sProductName, m_stParamsA.sProductLot, sCustomerEnd);
                 m_stParamsA.pSaveImageMultiThread->AddImageData(vTargetImage[i], sFilePath, sFileName, ".png");
             }

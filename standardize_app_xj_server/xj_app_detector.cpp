@@ -144,6 +144,8 @@ bool AppDetector::sendResultSignalToPLC(const bool bIsResultOK)
 			m_SecondResult = data;
 			LogINFO << "extern: Board[" << boardID << "] send " << (purgeSignal == (int)PLCSinal::OK ? "ok" : "ng") << " save data:" << data;
 			cout << "m_SecondResult------------------ " << m_SecondResult << endl;
+			const int address = CustomizedJsonConfig::instance().getVector<int>("PLC_MODBUS_TCP_CAMERA_INPUT_REGISTER_ADDRESS")[boardID];
+			dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 0);
 		}
 	}
 	return true;
@@ -380,13 +382,13 @@ void AppDetector::setCaptueImageTimesBySignal()
 		{
 			LogINFO << "extern: Board[" << boardID << "] read input data for first image capture signal:" << value << " from PLC register address:" << address;
 			m_iCaptureTimes = (int)CaptureImageTimes::FIRST_TIMES;
-			dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 0);
+			dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 100);
 		}
 		else if (value == 2)
 		{
 			LogINFO << "extern: Board[" << boardID << "] read input data for first image capture signal:" << value << " from PLC register address:" << address;
 			m_iCaptureTimes = (int)CaptureImageTimes::SECOND_TIMES;
-			dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 0);
+			dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, 100);
 		}		
 		else
 		{

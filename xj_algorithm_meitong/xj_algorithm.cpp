@@ -345,7 +345,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
             {
                 // cout << "~------------------- " << m_stParamsA.pSaveImageMultiThread << endl;
                 string sFilePath = (result == (int)DefectType::good) ? OK_SOURCE_IMAGE_SAVE_PATH : NG_SOURCE_IMAGE_SAVE_PATH;     
-                string sCustomerEnd = "CNT" + to_string((productCount-1) / 5 + 1) + "-" + to_string(productCount % 5 == 0 ? 5 : productCount % 5)  + "-PIC" + to_string(nCaptureTimes) + "_" + m_stParamsB.vCameraNames[m_stParamsA.boardId];
+                string sCustomerEnd = "CNT" + to_string(productCount) + "-PIC" + to_string(nCaptureTimes);
                 string sFileName = getAppFormatImageNameByCurrentTimeXJ(result, m_stParamsA.boardId, 0, i, m_stParamsA.sProductName, m_stParamsA.sProductLot, sCustomerEnd);
                 m_stParamsA.pSaveImageMultiThread->AddImageData(vTargetImage[i], sFilePath, sFileName, ".png");
             }
@@ -431,25 +431,26 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
         return false;
     }
 
-    Mat roiImage_ = resizeImg.clone();
-    cout << "contours.size()___" << contours.size() << endl;
-    for (size_t i = 0; i < contours.size(); i++)
-    {
-        box = boundingRect(contours[i]);
-        rectangle(roiImage_, box, Scalar(0,255,255),4);
-    }
-    // drawContours(roiImage_, contours, -1, Scalar(0,255,255), 4);
-    imwrite("/opt/app/test/rectangle.png", roiImage_);
-
     //step3: get max contour
     int maxIdx = 0;
     float maxArea = 0;
     getMaxContour(contours, maxIdx, maxArea);
-    if(maxArea <= 0)
+    if(maxArea <= 50000)
     {
-        cout << "[ERROR] locateBox  maxArea<=0 " << endl;
+        cout << "[ERROR] locateBox  maxArea<=50000 " << endl;
         return false;
     }
+
+    Mat roiImage_ = resizeImg.clone();
+    cout << "contours.maxArea()___" << maxArea << endl;
+    // for (size_t i = 0; i < contours.size(); i++)
+    // {
+    //     box = boundingRect(contours[i]);
+        box = boundingRect(contours[maxIdx]);
+        rectangle(roiImage_, box, Scalar(0,255,255),4);
+    // }
+    drawContours(roiImage_, contours, maxIdx, Scalar(0,255,255), 4);
+    imwrite("/opt/app/test/rectangle.png", roiImage_);
 
     //step4: get max bounding box and return result
     box = boundingRect(contours[maxIdx]);
@@ -712,7 +713,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
                 m_vMinDefectDiag = m_vMinDefectDiag_NC;
             }
 
-            
+            //后处理判断 OK/NG
             if (tempS > m_vMinDefectArea[(int)det.id] && diagL >= m_vMinDefectDiag[(int)det.id] && det.confidence >= m_vMinDefectProb[(int)det.id] && whiteArea >= 1)
             {  
                 Scalar scalar = Scalar(0,255,255);

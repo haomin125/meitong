@@ -634,7 +634,7 @@ void AppWorkflow::drawDesignedTargets(const double scale, const int thickness)
 				//1)保存OK原图
 				const bool bIsSaveSource =  CustomizedJsonConfig::instance().get<bool>("IS_NEED_SAVE_SOURCE_IMAGE_IN_APP");
 				string sCameraName = CustomizedJsonConfig::instance().getVector<string>("CAMERA_NAME")[boardID];
-				string sCustomerEnd = "CNT" + to_string((m_iProductNumber-1) / 5 + 1) + "-" + to_string(m_iProductNumber % 5 == 0 ? 5 : m_iProductNumber % 5) + "-PIC" + to_string(m_nCaptureImageTimes) + "_" + sCameraName;
+				string sCustomerEnd = "CNT" + to_string(m_iProductNumber) + "-PIC" + to_string(m_nCaptureImageTimes);
 				if(bIsSaveSource)
 				{				
 					string sSavePath = "/opt/history/origin/good/";
@@ -656,7 +656,7 @@ void AppWorkflow::drawDesignedTargets(const double scale, const int thickness)
 				//1)保存NG原图
 				const bool bIsSaveSource =  CustomizedJsonConfig::instance().get<bool>("IS_NEED_SAVE_SOURCE_IMAGE_IN_APP");
 				string sCameraName = CustomizedJsonConfig::instance().getVector<string>("CAMERA_NAME")[boardID];
-				string sCustomerEnd = "CNT" + to_string((m_iProductNumber-1) / 5 + 1) + "-" + to_string(m_iProductNumber % 5 == 0 ? 5 : m_iProductNumber % 5) + "-PIC" + to_string(m_nCaptureImageTimes) + "_" + sCameraName;
+				string sCustomerEnd = "CNT" + to_string(m_iProductNumber) + "-PIC" + to_string(m_nCaptureImageTimes);
 				if(bIsSaveSource)
 				{
 					string sSavePath = "/opt/history/origin/bad/";

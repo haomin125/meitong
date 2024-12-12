@@ -325,7 +325,8 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     for (int i = 0; i < vTargetImage.size(); i++)   // 
     {
         result = (int)DefectType::good;
-        if(!detectByDL(maskW1, maskH1, radius1, radius2, center, roiImage_, vTargetRect[i], vTargetImage[i], result, defectResult, processedImage))
+        std::string s_modelResult; //模型命名
+        if(!detectByDL(maskW1, maskH1, radius1, radius2, center, roiImage_, vTargetRect[i], vTargetImage[i], result, defectResult, processedImage, s_modelResult))
         {
             result = (int)DefectType::defect1;
             defectResult[0].emplace_back(result);
@@ -345,7 +346,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
             {
                 // cout << "~------------------- " << m_stParamsA.pSaveImageMultiThread << endl;
                 string sFilePath = (result == (int)DefectType::good) ? OK_SOURCE_IMAGE_SAVE_PATH : NG_SOURCE_IMAGE_SAVE_PATH;     
-                string sCustomerEnd = "CNT" + to_string(productCount) + "-PIC" + to_string(nCaptureTimes);
+                string sCustomerEnd = "CNT" + to_string(productCount) + "-PIC" + to_string(nCaptureTimes) + s_modelResult;
                 string sFileName = getAppFormatImageNameByCurrentTimeXJ(result, m_stParamsA.boardId, 0, i, m_stParamsA.sProductName, m_stParamsA.sProductLot, sCustomerEnd);
                 m_stParamsA.pSaveImageMultiThread->AddImageData(vTargetImage[i], sFilePath, sFileName, ".png");
             }
@@ -371,50 +372,32 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     {
         return false;
     }
+    //step1: preprocess
     Mat roiImage = image(roiRC);
     Mat resizeImg;
     resize(roiImage, resizeImg, Size(roiImage.cols/10, roiImage.rows /10));
-
-    //step1: preprocess
-    // int thresholdValue  = m_stParamsB.fParams.at("BOX_BINARY_THRESHOLD");
-    // int areaThreshold  = m_stParamsB.fParams.at("BOX_BINARY_AREA_THRESHOLD"); //大约2500*2500
     int thresholdValue(5);
     int areaThreshold(40000);
-    int thresh_binary;
-    if (nCaptureTimes == 1)
-    // if(m_stParamsA.boardId == 0 ||m_stParamsA.boardId == 2)
-    {  
-        thresholdValue = m_stParamsB.vecFParams.at("BOX_BINARY_THRESHOLD" + to_string(m_stParamsA.boardId + 1))[0];
-        areaThreshold  = m_stParamsB.vecFParams.at("BOX_BINARY_AREA_THRESHOLD" + to_string(m_stParamsA.boardId + 1))[0]; //大约2500*2500
-        thresh_binary = 1;  //
-    }
-    if(nCaptureTimes == 2)
-    // if(m_stParamsA.boardId == 1 ||m_stParamsA.boardId == 3)
+    Mat grayImage, binaryImage, bilater;
+    vector<Mat> channels;
+    split(resizeImg, channels);
+    if(m_stParamsA.boardId == 0)
     {
-        thresholdValue = m_stParamsB.vecFParams.at("BOX_BINARY_THRESHOLD" + to_string(m_stParamsA.boardId + 1))[1];
-        areaThreshold  = m_stParamsB.vecFParams.at("BOX_BINARY_AREA_THRESHOLD" + to_string(m_stParamsA.boardId + 1))[1]; //大约2500*2500
-        thresh_binary = 0;
-    }
-    //通过传统算法判断是4种图像中的哪种图像？根据判断结果设置BOX_BINARY_THRESHOLD和BOX_BINARY_AREA_THRESHOLD参数
-
-
-    Mat grayImage, binaryImage;
-    cvtColor(resizeImg, grayImage, COLOR_RGB2GRAY);
-    imwrite("/opt/app/test/grayImage.png", grayImage);
-    //blur(grayImage, grayImage, Size(3, 3));
-    // threshold(grayImage, binaryImage, thresholdValue, 255, THRESH_BINARY_INV); //an 取反
-    if (nCaptureTimes == 2)
+        bilateralFilter(channels[2], bilater, 3, 3, 3);
+        Canny(bilater, binaryImage, 60, 200);
+    }else
     {
-        Mat bilater, edges;
-        int lvbo = m_stParamsB.vecFParams.at("LVBO")[0];
-        int lowthre = m_stParamsB.vecFParams.at("LOWTHRE")[0];
-        bilateralFilter(grayImage, bilater, lvbo, lvbo, lvbo);
-        Canny(bilater, binaryImage, lowthre, 20);
-        // imwrite("/opt/app/test/bilater.png", bilater);
-    }
-    else
-    {
-        threshold(grayImage, binaryImage, thresholdValue, 255, thresh_binary); //an 取反
+        if (nCaptureTimes == 1)
+        {
+            bilateralFilter(channels[0], bilater, 3, 3, 3);
+            Canny(bilater, binaryImage, 60, 120);
+        }else
+        {
+            cvtColor(resizeImg, grayImage, COLOR_RGB2GRAY);
+            int lowthre = m_stParamsB.vecFParams.at("LOWTHRE")[0];
+            bilateralFilter(grayImage, bilater, 3, 3, 3);
+            Canny(bilater, binaryImage, lowthre, 20);     
+        }   
     }
     
     Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
@@ -624,7 +607,7 @@ Mat XJAlgorithm::preprocessImage(const Mat &roiImage)
 // // add
 
 // bool XJAlgorithm::detectByDL(Mat &roiImage, const Rect &roiRect, Mat &targetImage, int &result, vector<vector<int>> &defectResult, Mat &processedImage)
-bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage)
+bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult)
 {
     processedImage = roiImage.clone();
     //step1:pre-process
@@ -662,12 +645,12 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
         std::vector<cv::Rect> boxesXianshang;
         // float diagLXianshang;
 
-	    // cout<<"detectionOutput.at(j).size():  "<< detectionOutput.at(j).size() <<endl;
+	    cout<<"detectionOutput.at(j).size():  "<< detectionOutput.at(j).size() <<endl;
 		for	(int i=0; i<detectionOutput.at(j).size(); i++) {
             YoloOutputDetect &det = detectionOutput[j][i];
-			objectId = detectionOutput.at(j).at(i).id;
+			objectId = det.id;
+            confidences = det.confidence;
 			// cout<<"objectId " << objectId<<endl;
-
 			box.x = int(detectionOutput.at(j).at(i).box.x + roiRect.x);    //相对扣图的坐标
 			box.y = int(detectionOutput.at(j).at(i).box.y + roiRect.y);    //相对扣图的坐标
 			box.width = int(detectionOutput.at(j).at(i).box.width);
@@ -678,7 +661,8 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
             tempS = box.area();     
             diagL = std::sqrt(box.width*box.width + box.height*box.height); //瑕疵对角线长度
 
-            
+            cout << "模型检测结果C" << objectId + 2 << "  PROB:" << confidences << " _  AREA:" << tempS << "_  DIAG:" << diagL << endl;
+            s_modelResult = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL);
 
             //防止边缘附近的背景上的瑕疵误检
             //定义一个空的掩膜图，对应ROI区
@@ -714,7 +698,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
             }
 
             //后处理判断 OK/NG
-            if (tempS > m_vMinDefectArea[(int)det.id] && diagL >= m_vMinDefectDiag[(int)det.id] && det.confidence >= m_vMinDefectProb[(int)det.id] && whiteArea >= 1)
+            if (tempS > m_vMinDefectArea[objectId] && diagL >= m_vMinDefectDiag[objectId] && confidences >= m_vMinDefectProb[objectId] && whiteArea >= 1)
             {  
                 Scalar scalar = Scalar(0,255,255);
                 // value = (int)LocalLevel::C;

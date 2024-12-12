@@ -31,7 +31,7 @@ private:
     bool extractROI(const cv::Mat &roiImage, const cv::Rect &roiRect, std::vector<cv::Rect> &vTargetRect, std::vector<cv::Mat> &vTargetImage);
 
     cv::Mat preprocessImage(const cv::Mat &roiImage);
-    bool detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage);
+    bool detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult);
 
     bool detectCharacter(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
     bool detectTiaoxingma(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);

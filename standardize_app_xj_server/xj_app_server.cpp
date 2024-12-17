@@ -21,6 +21,7 @@
 #include <boost/foreach.hpp>
 #include <thread>
 #include <chrono>
+#include <numeric>
 
 #define DATABASE_ELAPSE_MINUTE 60     // the minutes to update report in database
 
@@ -103,6 +104,8 @@ bool XJAppServer::initXJApp(std::shared_ptr<BaseIoManager> &pPlcManager)
 	{
 		shared_ptr<AppTimer> pTimer = make_shared<AppTimer>();
 		m_vTimer.emplace_back(pTimer);
+		shared_ptr<AppTimer> pTimer_total = make_shared<AppTimer>();
+		m_vTimer_total.emplace_back(pTimer_total);
 
 		shared_ptr<Board> pBoard = m_pProductLine->getBoard(boardIdx);
 		shared_ptr<ProductLineConfig> pProdlineConfig = m_pProductLine->getConfig();
@@ -455,10 +458,27 @@ bool XJAppServer::runDetector(const int boardId)
 		const double t1 = m_vTimer[boardId]->elapsed();
 		LogDEBUG << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : get image time cost " << t1  << " seconds";
 		m_pDetectors[boardId].m_pDetector->updateProductCountofWorkflow();
+		jishi1.emplace_back(t1);
+		if (jishi1.size() == 20)
+		{
+			int i = 0;
+			for (double num : jishi1)
+			{
+				i++;
+				cout << "get image: Board[" << boardId << "] : 第" << i << "次" << num << " seconds" << endl;
+			}
+			float maxValue = *max_element(jishi1.begin(), jishi1.end());
+			double sum = accumulate(jishi1.begin(), jishi1.end(), 0.0);
+			double average = static_cast<double>(sum) / jishi1.size();
+			cout << "get image:Maximum value: " << maxValue << endl;
+			cout << "get image:Average value: " << average << endl;
+			jishi1.clear();
+		}		
 	}
 	else
 	{
 		//set capture image times in detector
+		m_vTimer[boardId]->reset();
 		m_pDetectors[boardId].m_pDetector->setCaptueImageTimesBySignal();	
 		if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::UNKNOWN_TIMES)
 		{
@@ -480,15 +500,24 @@ bool XJAppServer::runDetector(const int boardId)
 		}
 		else if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::SECOND_TIMES)
 		{
+			m_vTimer_total[boardId]->reset(); //每个产品第一次拍照开始计时
+			if (boardId == 0)
+			{
+				signal_0 == 1;
+			}else
+			{
+				signal_1 == 1;
+			}
+			
 			vector<float> vExposure = CustomizedJsonConfig::instance().getVector<float>("CAMERA_EXPOSURE_SECOND");
 			vector<float> vGain = CustomizedJsonConfig::instance().getVector<float>("CAMERA_GAIN_SECOND");
 			pConfig->setExposure(vExposure[boardId]);	
-			pConfig->setGain(vGain[boardId]);		
-			// const float fExposure = RunningInfo::instance().GetProductSetting().GetFloatSetting(int(ProductSettingFloatMapper::SECOND_CAPTURE_EXPOSURE_VALUE));
-			// pConfig->setExposure(fExposure);		
+			pConfig->setGain(vGain[boardId]);
 			pConfig->setConfig();	
 		}
-
+		const double t0 = m_vTimer[boardId]->elapsed();
+		LogDEBUG << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : setConfig time cost " << t0  << " seconds";
+	
 		//////////////////////////// STEP1: get next image ////////////////////////////
 		// product count will be increased if get next frame sucessfully, to make log//
 		// consistant, we add 1 here instead                                         //
@@ -514,6 +543,22 @@ bool XJAppServer::runDetector(const int boardId)
 		}	
 		const double t1 = m_vTimer[boardId]->elapsed();
 		LogDEBUG << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : get image time cost " << t1  << " seconds";
+		jishi1.emplace_back(t1);
+		if (jishi1.size() == 20)
+		{
+			int i = 0;
+			for (double num : jishi1)
+			{
+				i++;
+				cout << "get image: 第" << i << "次" << num << " seconds" << endl;
+			}
+			float maxValue = *max_element(jishi1.begin(), jishi1.end());
+			double sum = accumulate(jishi1.begin(), jishi1.end(), 0.0);
+			double average = static_cast<double>(sum) / jishi1.size();
+			cout << "get image:Maximum value: " << maxValue << endl;
+			cout << "get image:Average value: " << average << endl;
+			jishi1.clear();
+		}
 	}
 
 	const int totalTimes = m_pDetectors[boardId].m_pDetector->getCaptureImageTotalTimes();
@@ -523,7 +568,6 @@ bool XJAppServer::runDetector(const int boardId)
 		m_pDetectors[boardId].m_pDetector->resetProductCount(m_pDetectors[boardId].m_pDetector->productCount() - 1);
 	}
 	//m_pDetectors[boardId].m_pDetector->updateProductCountofWorkflow();
-
 
 	//////////////////////////// STEP2: pre-process next image ////////////////////////////
 	m_vTimer[boardId]->reset();
@@ -596,6 +640,51 @@ bool XJAppServer::runDetector(const int boardId)
 	LogDEBUG << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : draw board time cost " << t5 << " seconds";
 	LogINFO << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : total detect time cost except for getting image " << t2 + t3 + t4 + t5 << " seconds";
 
+	if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::FIRST_TIMES || signal_0 == 1 && boardId == 0)
+	{
+		const double t100 = m_vTimer_total[boardId]->elapsed();
+		LogINFO << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : total detect time cost" << t100 << " seconds";
+		jishi_0.emplace_back(t100);
+		if (jishi_0.size() == 5)
+		{
+			int i = 0;
+			for (double num : jishi_0)
+			{
+				i++;
+				cout << "两次拍照检测完成总时间: Board[" << boardId << "] : 第" << i << "次" << num << " seconds" << endl;
+			}
+			float maxValue = *max_element(jishi_0.begin(), jishi_0.end());
+			double sum = accumulate(jishi_0.begin(), jishi_0.end(), 0.0);
+			double average = static_cast<double>(sum) / jishi_0.size();
+			cout << "两次拍照检测完成总时间:Maximum value: " << maxValue << endl;
+			cout << "两次拍照检测完成总时间:Average value: " << average << endl;
+			jishi_0.clear();
+		}
+		signal_0 = 0;
+	}
+	if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::FIRST_TIMES || signal_1 == 1 && boardId == 1)
+	{
+		const double t100 = m_vTimer_total[boardId]->elapsed();
+		LogINFO << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : total detect time cost" << t100 << " seconds";
+		jishi_1.emplace_back(t100);
+		if (jishi_1.size() == 5)
+		{
+			int i = 0;
+			for (double num : jishi_1)
+			{
+				i++;
+				cout << "两次拍照检测完成总时间: Board[" << boardId << "] : 第" << i << "次" << num << " seconds" << endl;
+			}
+			float maxValue = *max_element(jishi_1.begin(), jishi_1.end());
+			double sum = accumulate(jishi_1.begin(), jishi_1.end(), 0.0);
+			double average = static_cast<double>(sum) / jishi_1.size();
+			cout << "两次拍照检测完成总时间:Maximum value: " << maxValue << endl;
+			cout << "两次拍照检测完成总时间:Average value: " << average << endl;
+			jishi_1.clear();
+		}
+		signal_0 = 0;
+	}
+	
 	return true;
 }
 

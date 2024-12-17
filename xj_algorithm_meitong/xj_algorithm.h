@@ -110,6 +110,10 @@ private:
     cv::Ptr<cv::freetype::FreeType2> ft2 = cv::freetype::createFreeType2();
 
     float debug_add = 0;
+    //计时器
+	AppTimer m_timer;
+    std::vector<double> jishi;
+    std::vector<double> jishi1;
 };
 
 

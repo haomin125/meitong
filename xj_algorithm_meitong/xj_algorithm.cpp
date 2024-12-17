@@ -1,13 +1,12 @@
 #include "xj_algorithm.h"
 #include "data.h"
 #include "utils.h"
-
+#include <numeric>
 
 using namespace cv;
 using namespace std;
 using namespace boost::property_tree::json_parser;
 using namespace boost::property_tree;
-
 
 enum DefectType:int
 {
@@ -212,6 +211,7 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
 }
 vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedImage, const int productCount, const int nCaptureTimes)
 {
+	m_timer.reset();
     processedImage = image.clone();
     int result = (int)DefectType::good; //1?
     //defectResult是行数为m_stParamsA.numTargetInView的二维向量，每一行初始化为vector<int>()，存储缺陷结果
@@ -242,7 +242,11 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         cout << "debug_add  " << debug_add << endl;
         cout << "is_board  " << is_board[3] << endl;
     }
+
+	const double t1 = m_timer.elapsed();
+    cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] :  time cost " << t1 << " seconds" << endl;
     //step1: locate box
+    m_timer.reset();
     Rect roiRect;
     if(!locateBox(image, roiRect, nCaptureTimes)) //当定位失败时，result被强制为defect1=2
     {
@@ -262,7 +266,8 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     Mat roiImage = image(roiRect);
 
     // Mat roiImage = image.clone();
-
+    const double t2 = m_timer.elapsed();
+    cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : locateBox time cost " << t2 << " seconds" << endl;
     //step2: detect defect by cv
 
     //STEP1：定义一个空的掩膜图,对应光学区/非光学区
@@ -303,6 +308,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     //step3:split ROI 
     vector<Rect> vTargetRect;
     vector<Mat> vTargetImage;
+    m_timer.reset();
     if(!extractROI(roiImage_, roiRect, vTargetRect, vTargetImage))
     {
         cout << "ERROR extractROI" << endl; 
@@ -319,8 +325,10 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         defectResult[0].emplace_back(result);
         return defectResult;
     }
-
-
+   
+    const double t3 = m_timer.elapsed();
+    cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : extractROI time cost " << t3 << " seconds" << endl;
+    m_timer.reset();
     //step4: get detect result by DL
     for (int i = 0; i < vTargetImage.size(); i++)   // 
     {
@@ -333,10 +341,10 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         }
         // cout << "defectResult----  " << i << "____" << defectResult[i].size() << endl;
 
-        for (size_t j = 0; j < defectResult[i].size() ; j++)
-        {
-            cout  << "____" << defectResult[i][0] << endl;
-        }
+        // for (size_t j = 0; j < defectResult[i].size() ; j++)
+        // {
+        //     cout  << "____" << defectResult[i][0] << endl;
+        // }
 
         //step5: save image
         // cout << "~~~~~~~~~~~~~~~~~~~ " << m_stParamsA.pSaveImageMultiThread << endl;
@@ -359,6 +367,24 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     // {
     //     rectangle(processedImage, vTargetRect[i], Scalar(255, 255, 255), 5, 8); 
     // }  
+    const double t4 = m_timer.elapsed();
+    cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : detectByDL time cost " << t4 << " seconds" << endl;
+    jishi1.emplace_back(t4);
+    if (jishi1.size() == 100)
+    {
+        int i = 0;
+        for (double num : jishi1)
+        {
+            i++;
+            cout << "detectByDL: Board[" << m_stParamsA.boardId << "] : 第" << i << "次" << num << " seconds" << endl;
+        }
+		float maxValue = *max_element(jishi1.begin(), jishi1.end());
+		double sum = accumulate(jishi1.begin(), jishi1.end(), 0.0);
+		double average = static_cast<double>(sum) / jishi1.size();
+		cout << "detectByDL:Maximum value: " << maxValue << endl;
+		cout << "detectByDL:Average value: " << average << endl;
+        jishi1.clear();
+    }
                       
     return defectResult;
 }
@@ -622,8 +648,29 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
     //step2:detect by DL
     // vector<vector<Detection>> vResult;
 	// cout<<"images.size():  "<< images.size() <<endl;
+    // const double t4 = m_timer.elapsed();
     m_tensorrtYoloDL->getDetectionResult(images, detectionOutput);  
 
+    // const double t5 = m_timer.elapsed() - t4;
+    // cout << "小图推理时间: Board[" << m_stParamsA.boardId << "] : getDetectionResult time cost " << t5 << " seconds" << endl;
+
+    // jishi.emplace_back(t5);
+    // if (jishi.size() == 1000)
+    // {
+    //     int i = 0;
+    //     for (double num : jishi)
+    //     {
+    //         i++;
+    //         cout << "小图推理时间: Board[" << m_stParamsA.boardId << "] : 第" << i << "次" << num << " seconds" << endl;
+    //     }
+	// 	float maxValue = *max_element(jishi.begin(), jishi.end());
+	// 	double sum = accumulate(jishi.begin(), jishi.end(), 0.0);
+	// 	double average = static_cast<double>(sum) / jishi.size();
+	// 	cout << "小图1000次推理时间:Maximum value: " << maxValue << endl;
+	// 	cout << "小图1000次推理时间:Average value: " << average << endl;
+    //     jishi.clear();
+    // }
+    
     // step3:post-process
     // float scale = std::max(roiImage.rows, roiImage.cols) / (float)TARGET_SIZE;  //归一化系数
 	// cout<<"detectionOutput.size():  "<< detectionOutput.size() <<endl;
@@ -645,7 +692,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
         std::vector<cv::Rect> boxesXianshang;
         // float diagLXianshang;
 
-	    cout<<"detectionOutput.at(j).size():  "<< detectionOutput.at(j).size() <<endl;
+	    // cout<<"detectionOutput.at(j).size():  "<< detectionOutput.at(j).size() <<endl;
 		for	(int i=0; i<detectionOutput.at(j).size(); i++) {
             YoloOutputDetect &det = detectionOutput[j][i];
 			objectId = det.id;
@@ -661,7 +708,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
             tempS = box.area();     
             diagL = std::sqrt(box.width*box.width + box.height*box.height); //瑕疵对角线长度
 
-            cout << "模型检测结果C" << objectId + 2 << "  PROB:" << confidences << " _  AREA:" << tempS << "_  DIAG:" << diagL << endl;
+            // cout << "模型检测结果C" << objectId + 2 << "  PROB:" << confidences << " _  AREA:" << tempS << "_  DIAG:" << diagL << endl;
             s_modelResult = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL);
 
             //防止边缘附近的背景上的瑕疵误检

@@ -381,11 +381,11 @@ bool getMaxContour(const vector<vector<Point>>& contours, int &maxAreaIdx, float
         // if ((widthThr1<box.width<widthThr2) & (heightThr1<box.height<heightThr2))
         if (widthThr1 < box.width & widthThr2 > box.width & heightThr1 < box.height & heightThr2 > box.height )
         {
-            cout << "widthThr1.width:" << box.width << endl;
-            cout << "widthThr1.height:" << box.height << endl;
+            // cout << "widthThr1.width:" << box.width << endl;
+            // cout << "widthThr1.height:" << box.height << endl;
             // double tempArea = contourArea(contours[i]);
             double tempArea = box.width * box.height;
-            cout << "widthThr1.I  :" << i  << "  " << tempArea << endl;
+            // cout << "widthThr1.I  :" << i  << "  " << tempArea << endl;
             if (tempArea > maxContourArea)
             {
                 maxContourArea = tempArea;

@@ -296,15 +296,15 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
     // if(m_stParamsA.boardId == 1)
     {
-        // int radius3 = 1100; 
+        const radius_is = 2400 / 2.6;
         int radius3 = 900; 
         cv::Mat mask3 = cv::Mat::ones(maskH1, maskW1, CV_8UC1);  //CV_8UC1：8位单通道图像
-        cv::circle(mask3, center, radius3, cv::Scalar(0), -1);
+        cv::circle(mask3, center, radius_is, cv::Scalar(0), -1);
         cv::Mat dst;
         roiImage_.copyTo(dst,mask3);
         roiImage_ = dst.clone();
-    }
         imwrite("/opt/app/test/红光暗场屏蔽区域.png", roiImage_);
+    }    
     //step3:split ROI 
     vector<Rect> vTargetRect;
     vector<Mat> vTargetImage;

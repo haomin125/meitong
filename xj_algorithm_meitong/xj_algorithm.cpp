@@ -104,11 +104,11 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
         m_roiWidth = m_stParamsB.vecFParams.at("ROI_WIDTH")[m_stParamsA.boardId];
         m_roiHeight = m_stParamsB.vecFParams.at("ROI_HEIGHT")[m_stParamsA.boardId];
 
-        //传统
-        //检测物性
-        m_isCheckWuxing = m_stParamsB.vecFParams.at("IS_CHECK_WUXING")[m_stParamsA.boardId];
+        //扣图检测物性
         m_wuxingWidth = m_stParamsB.vecFParams.at("WUXING_X")[m_stParamsA.boardId];
         m_wuxingHeight = m_stParamsB.vecFParams.at("WUXING_Y")[m_stParamsA.boardId];
+        m_wuxingWidthOffset = m_stParamsB.vecFParams.at("WUXING_X_OFFSET")[m_stParamsA.boardId];
+        m_wuxingHeightOffset = m_stParamsB.vecFParams.at("WUXING_Y_OFFSET")[m_stParamsA.boardId];
 
         // m_vDisableDefectType = m_stParamsB.vecFParams.at("DISABLE_DEFECT_TYPE_DET_CAM" +  to_string(m_stParamsA.boardId + 1));
 
@@ -239,19 +239,17 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
             return defectResult;
         }
         debug_add++;
-        cout << "debug_add  " << debug_add << endl;
-        cout << "is_board  " << is_board[3] << endl;
     }
 
 	const double t1 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] :  time cost " << t1 << " seconds" << endl;
     //step1: locate box
     m_timer.reset();
-    Rect roiRect;
-    if(!locateBox(image, roiRect, nCaptureTimes)) //当定位失败时，result被强制为defect1=2
+    Rect roiRect, roi_origin;
+    if(!locateBox(image, roi_origin, roiRect, nCaptureTimes)) //当定位失败时，result被强制为defect1=2
     {
         cout << "[ERROR] locateBox" << endl; 
-        result = (int)DefectType::defect1;
+        result = (int)DefectType::defect10;
         defectResult[0].emplace_back(result);
         // imwrite("locateBox.png", image);
         if(1)
@@ -263,12 +261,11 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         }
         return defectResult;
     }
-    Mat roiImage = image(roiRect);
 
-    // Mat roiImage = image.clone();
     const double t2 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : locateBox time cost " << t2 << " seconds" << endl;
-    //step2: detect defect by cv
+
+    Mat roiImage = image(roiRect);
 
     //STEP1：定义一个空的掩膜图,对应光学区/非光学区
     int maskW1 = roiImage.cols;
@@ -276,27 +273,27 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     // cv::Mat mask1 = cv::Mat::zeros(maskH1, maskW1, CV_8UC1);
     // cv::Mat mask2 = mask1.clone();  //
     cv::Point center(maskW1/2, maskH1/2);
-    int radius1 = 420;
-    // cv::circle(mask1, center1, radius1, cv::Scalar(255), -1);
-
+    int product_diameter = roi_origin.width > roi_origin.height ? roi_origin.width : roi_origin.height;
+    int radius1 = product_diameter / 5.7; //中心区420
+    int radius2 = product_diameter / 2 + product_diameter / 30;     //留1/30背景区
     //STEP2：定义一个空的掩膜图,对应前景区/背景区
     cv::Mat mask2 = cv::Mat::zeros(maskH1, maskW1, CV_8UC1);  //CV_8UC1：8位单通道图像
-    // cv::Point center2 = center1;
-    int radius2 = 1280;     //留了一点点背景区
-    cv::circle(mask2, center, radius2, cv::Scalar(255), -1);
-    // imwrite("/opt/app/test/mask2.png", mask2);
-    imwrite("/opt/app/test/roiImage.png", roiImage);
+    cv::circle(mask2, center, radius2, cv::Scalar(255), -1);    
     //STEP3: 屏蔽背景区域,用mask2和输入图片做bitwise_and
     cv::Mat roiImage_;
     cv::bitwise_and(roiImage, roiImage, roiImage_, mask2);
-    // roiImage.copyTo(roiImage_,mask2);
-    imwrite("/opt/app/test/roiImage_.png", roiImage_);
+
+    if(m_stParamsB.fParams.at("IS_DEBUG"))
+    {
+        imwrite("/opt/app/test/mask2.png", mask2);
+        imwrite("/opt/app/test/roiImage.png", roiImage);
+        imwrite("/opt/app/test/roiImage_.png", roiImage_);
+    }
 
     // 红光暗场屏蔽区域
     if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
-    // if(m_stParamsA.boardId == 1)
     {
-        const radius_is = 2400 / 2.6;
+        const int radius_is = 2400 / 2.6;
         int radius3 = 900; 
         cv::Mat mask3 = cv::Mat::ones(maskH1, maskW1, CV_8UC1);  //CV_8UC1：8位单通道图像
         cv::circle(mask3, center, radius_is, cv::Scalar(0), -1);
@@ -317,14 +314,6 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         imwrite("/opt/app/test/extractROI.png", roiImage);
         return defectResult;
     }
-
-    //step2.1: 传统检测物性
-    if (m_isCheckWuxing == 1 && !checkWuxing(roiRect)){
-        // cout << "传统检测物性" <<endl;
-        result = (int)DefectType::defect10;
-        defectResult[0].emplace_back(result);
-        return defectResult;
-    }
    
     const double t3 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : extractROI time cost " << t3 << " seconds" << endl;
@@ -334,7 +323,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     {
         result = (int)DefectType::good;
         std::string s_modelResult; //模型命名
-        if(!detectByDL(maskW1, maskH1, radius1, radius2, center, roiImage_, vTargetRect[i], vTargetImage[i], result, defectResult, processedImage, s_modelResult))
+        if(!detectByDL(maskW1, maskH1, radius1, radius2, center, roiImage_, vTargetRect[i], vTargetImage[i], result, defectResult, processedImage, s_modelResult, nCaptureTimes))
         {
             result = (int)DefectType::defect1;
             defectResult[0].emplace_back(result);
@@ -389,7 +378,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     return defectResult;
 }
 
-bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes)
+bool XJAlgorithm::locateBox(const Mat& image, Rect &box_origin, Rect &box, const int nCaptureTimes)
 {
     Rect globalRC(0, 0, image.cols, image.rows);
     Rect roiRC(m_roiOffsetX, m_roiOffsetX, m_roiWidth, m_roiHeight);
@@ -401,9 +390,9 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     //step1: preprocess
     Mat roiImage = image(roiRC);
     Mat resizeImg;
-    resize(roiImage, resizeImg, Size(roiImage.cols/10, roiImage.rows /10));
-    int thresholdValue(5);
-    int areaThreshold(40000);
+    int resize_scale = m_wuxingWidth / 242;
+    cout << " m_wuxingWidth " << m_wuxingWidth << resize_scale << endl;
+    resize(roiImage, resizeImg, Size(roiImage.cols / resize_scale, roiImage.rows / resize_scale));
     Mat grayImage, binaryImage, bilater;
     vector<Mat> channels;
     split(resizeImg, channels);
@@ -415,20 +404,22 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     {
         if (nCaptureTimes == 1)
         {
+            int lowthre = m_stParamsB.vecFParams.at("CANNYTHRE")[0];
+            int highthre = m_stParamsB.vecFParams.at("CANNYTHRE")[1];
             bilateralFilter(channels[0], bilater, 3, 3, 3);
-            Canny(bilater, binaryImage, 60, 120);
+            Canny(bilater, binaryImage, lowthre, highthre);
         }else
         {
             cvtColor(resizeImg, grayImage, COLOR_RGB2GRAY);
-            int lowthre = m_stParamsB.vecFParams.at("LOWTHRE")[0];
             bilateralFilter(grayImage, bilater, 3, 3, 3);
-            Canny(bilater, binaryImage, lowthre, 20);     
+            Canny(bilater, binaryImage, 5, 20);     
         }   
     }
     
     Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
     morphologyEx(binaryImage, binaryImage, MORPH_CLOSE, kernel);
-    imwrite("/opt/app/test/binaryImage.png", binaryImage);
+    if(m_stParamsB.fParams.at("IS_DEBUG"))
+    {imwrite("/opt/app/test/binaryImage.png", binaryImage);}
 
     //test houghcirle
     // Hough_Circle(grayImage);
@@ -443,33 +434,31 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     //step3: get max contour
     int maxIdx = 0;
     float maxArea = 0;
-    getMaxContour(contours, maxIdx, maxArea);
-    if(maxArea <= 50000)
+    if(!getContour(contours, maxIdx, maxArea, resize_scale))
     {
-        cout << "[ERROR] locateBox  maxArea<=50000 " << endl;
         return false;
     }
 
     Mat roiImage_ = resizeImg.clone();
-    cout << "contours.maxArea()___" << maxArea << endl;
-    // for (size_t i = 0; i < contours.size(); i++)
-    // {
-    //     box = boundingRect(contours[i]);
-        box = boundingRect(contours[maxIdx]);
-        rectangle(roiImage_, box, Scalar(0,255,255),4);
-    // }
-    drawContours(roiImage_, contours, maxIdx, Scalar(0,255,255), 4);
-    imwrite("/opt/app/test/rectangle.png", roiImage_);
+    if(m_stParamsB.fParams.at("IS_DEBUG"))
+    {
+        // for (size_t i = 0; i < contours.size(); i++)
+        // {
+        //     box = boundingRect(contours[i]);
+            box = boundingRect(contours[maxIdx]);
+            rectangle(roiImage_, box, Scalar(0,255,255),4);
+        // }
+        drawContours(roiImage_, contours, maxIdx, Scalar(0,255,255), 4);
+        imwrite("/opt/app/test/rectangle.png", roiImage_);
+    }
 
     //step4: get max bounding box and return result
     box = boundingRect(contours[maxIdx]);
-    box.x *= 10; //左上角横坐标
-    box.y *= 10; //左上角纵坐标
-    box.width *= 10;
-    box.height *= 10;
-    // Mat getMaxContour_ = roiImage.clone();
-    // rectangle(getMaxContour_, box, Scalar(0,255,255),4);
-    // imwrite("/opt/app/test/getMaxContour_.png", getMaxContour_);
+    box.x *= resize_scale; //左上角横坐标
+    box.y *= resize_scale; //左上角纵坐标
+    box.width *= resize_scale;
+    box.height *= resize_scale;
+    box_origin = box;
 
     cout << "box.width:" << box.width << endl;
     cout << "box.height:" << box.height << endl;
@@ -487,18 +476,38 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box, const int nCaptureTimes
     {
         return false;
     }
-
     return true;
 }
 
-bool XJAlgorithm::checkWuxing(Rect &box)
+bool XJAlgorithm::getContour(const vector<vector<Point>>& contours, int &maxAreaIdx, float& maxContourArea, const int &resize_scale)
 {
-    if (m_wuxingWidth < ((box.width-EXTEND_LENGTH*2)-40) || m_wuxingWidth > ((box.width-EXTEND_LENGTH*2)+40) || m_wuxingHeight < ((box.height-EXTEND_LENGTH*2)-40) || m_wuxingHeight > ((box.height-EXTEND_LENGTH*2)+40))
+    maxAreaIdx = -1;
+    maxContourArea = 0.0;
+    Rect box;
+    int widthThr1 = (m_wuxingWidth - m_wuxingWidthOffset) / resize_scale;
+    int widthThr2 = (m_wuxingWidth + m_wuxingWidthOffset) / resize_scale;
+    int heightThr1 = (m_wuxingHeight - m_wuxingHeightOffset) / resize_scale;
+    int heightThr2 = (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale;
+    for (int i = 0; i != contours.size(); i++)
     {
-        cout<<"box.width-80:  "<< box.width-80 <<endl;
-        cout<<"box.height-80:  "<< box.height-80 <<endl;
-        cout<<"box.width+80:  "<< box.width+80 <<endl;
-        cout<<"box.height+80:  "<< box.height+80 <<endl;
+        box = boundingRect(contours[i]);
+        // if ((widthThr1<box.width<widthThr2) & (heightThr1<box.height<heightThr2))
+        if (widthThr1 < box.width & widthThr2 > box.width & heightThr1 < box.height & heightThr2 > box.height )  //检测物性
+        {
+            // cout << "widthThr1.width:" << box.width << endl;
+            // cout << "widthThr1.height:" << box.height << endl;
+            // double tempArea = contourArea(contours[i]);
+            double tempArea = box.width * box.height;
+            // cout << "widthThr1.I  :" << i  << "  " << tempArea << endl;
+            if (tempArea > maxContourArea)
+            {
+                maxContourArea = tempArea;
+                maxAreaIdx = i;
+            }
+        }
+    }
+    if (maxAreaIdx == -1)
+    {
         return false;
     }
     return true;
@@ -633,7 +642,7 @@ Mat XJAlgorithm::preprocessImage(const Mat &roiImage)
 // // add
 
 // bool XJAlgorithm::detectByDL(Mat &roiImage, const Rect &roiRect, Mat &targetImage, int &result, vector<vector<int>> &defectResult, Mat &processedImage)
-bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult)
+bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult, const int nCaptureTimes)
 {
     processedImage = roiImage.clone();
     //step1:pre-process
@@ -641,7 +650,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
     vector<Rect> roiRect_;
     vector<vector<YoloOutputDetect>> detectionOutput;
     targetImage = preprocessImage(targetImage);
-    // Mat targetImage_ = imread("bad.png");
+    // targetImage = imread("test.png");   //测试小图
     images.push_back(targetImage);
     roiRect_.push_back(roiRect);
     
@@ -697,6 +706,12 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
             YoloOutputDetect &det = detectionOutput[j][i];
 			objectId = det.id;
             confidences = det.confidence;
+
+            if(nCaptureTimes == 2 && m_stParamsA.boardId == 0 && objectId != 0)  //红光暗场只检禁止瑕疵
+            {
+               continue;
+            }
+            
 			// cout<<"objectId " << objectId<<endl;
 			box.x = int(detectionOutput.at(j).at(i).box.x + roiRect.x);    //相对扣图的坐标
 			box.y = int(detectionOutput.at(j).at(i).box.y + roiRect.y);    //相对扣图的坐标
@@ -716,8 +731,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
             cv::Mat mask3 = cv::Mat::zeros(maskH1, maskW1, CV_8UC1);
             cv::Mat mask4 = mask3.clone();
             cv::Point center3 = center1;
-            int radius3 = radius2-116;    //缩窄背景区域
-            cv::circle(mask3, center3, radius3, cv::Scalar(255), -1);
+            cv::circle(mask3, center3, radius2, cv::Scalar(255), -1);
             //对每个检测到的瑕疵定义一个掩膜图
             cv::Rect roi(box.x, box.y, box.width, box.height);
             cv::rectangle(mask4, roi, cv::Scalar(255), -1);
@@ -730,7 +744,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
             float centerY = box.y + box.height/2;
             //计算产品中心到瑕疵中心的距离，与radius1比较大小，由此判断调用松/紧参数
             float d_defect2center = std::sqrt((centerX-maskW1/2)*(centerX-maskW1/2) + (centerY-maskH1/2)*(centerY-maskH1/2));
-            if (d_defect2center >= radius2){    //如果检测到的瑕疵的中心点在背景区（防止模型异常或早期的训练数据影响）
+            if (d_defect2center > radius2 && whiteArea < 10){    //如果检测到的瑕疵的中心点在背景区（防止模型异常或早期的训练数据影响）
                 continue;
             }
             if (d_defect2center <= radius1){

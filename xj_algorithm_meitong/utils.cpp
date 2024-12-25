@@ -356,46 +356,6 @@ bool getOffsetPolyMasks(Mat& canvas,vector<Point2i>& offsets,vector<vector<Point
     return true;
 }
 
-// bool Hough_Circle(const cv::Mat &image)
-// {
-//     Mat grayImg = image.clone();
-//     Mat thresholdImg;
-//     Canny(grayImg, thresholdImg, 10, 20);
-//     vector<Vec3f> vCircles;
-//     HoughCircles(thresholdImg, vCircles, 1, 1, 20, 12, 21, 12, 12);
-//     return true;
-// }
-
-bool getMaxContour(const vector<vector<Point>>& contours, int &maxAreaIdx, float& maxContourArea)
-{
-    maxAreaIdx = -1;
-    maxContourArea = 0.0;
-    Rect box;
-    int widthThr1 = 220;
-    int widthThr2 = 260;
-    int heightThr1 = 220;
-    int heightThr2 = 260;
-    for (int i = 0; i != contours.size(); i++)
-    {
-        box = boundingRect(contours[i]);
-        // if ((widthThr1<box.width<widthThr2) & (heightThr1<box.height<heightThr2))
-        if (widthThr1 < box.width & widthThr2 > box.width & heightThr1 < box.height & heightThr2 > box.height )
-        {
-            // cout << "widthThr1.width:" << box.width << endl;
-            // cout << "widthThr1.height:" << box.height << endl;
-            // double tempArea = contourArea(contours[i]);
-            double tempArea = box.width * box.height;
-            // cout << "widthThr1.I  :" << i  << "  " << tempArea << endl;
-            if (tempArea > maxContourArea)
-            {
-                maxContourArea = tempArea;
-                maxAreaIdx = i;
-            }
-        }
-    }
-    return true;
-}
-
 bool findHorizontalEdge(const cv::Mat &roiImage, int &x, int iThresh, bool bIsReverse, bool bIsDarkLight)
 {
      x  = -1;

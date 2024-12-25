@@ -42,6 +42,8 @@ private:
 
 	//设置PLC参数
 	void setPlcParameters();
+	void testSignal(int &data);
+	int test_data = 0;
 
 	std::vector<ClassificationResult> m_vTotalResult;
 	int m_purgeMode;//0-正常剔除， 1-全部OK， 2-全部NG, 3-OK-NG交替

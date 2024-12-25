@@ -26,12 +26,12 @@ public:
     std::vector<std::vector<int>> detectAnalyze(const cv:: Mat &image, cv::Mat &processedImage, const int productCount, const int nCaptureTimes);
 
 private:
-    bool locateBox(const cv::Mat& image, cv::Rect &box, const int nCaptureTimes);
+    bool locateBox(const cv::Mat& image, cv::Rect &box_origin, cv::Rect &box, const int nCaptureTimes);
     bool checkWuxing(cv::Rect &box);    //
     bool extractROI(const cv::Mat &roiImage, const cv::Rect &roiRect, std::vector<cv::Rect> &vTargetRect, std::vector<cv::Mat> &vTargetImage);
 
     cv::Mat preprocessImage(const cv::Mat &roiImage);
-    bool detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult);
+    bool detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult, const int nCaptureTimes);
 
     bool detectCharacter(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
     bool detectTiaoxingma(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
@@ -53,7 +53,8 @@ private:
     bool detectDiGaiBaoHuMo(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
     bool detectTianGaiBaoHuMo(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
     bool isDisableDet(const float defectType);
-
+    bool getContour(const std::vector<std::vector<cv::Point>>& contours, int &maxAreaIdx, float& maxContourArea, const int &resize_scale);
+    
     //参数结构体成员变量
 	stConfigParamsA m_stParamsA;
 	stConfigParamsB m_stParamsB;
@@ -95,6 +96,8 @@ private:
     int m_isCheckWuxing;
     int m_wuxingWidth;
     int m_wuxingHeight;
+    int m_wuxingWidthOffset;
+    int m_wuxingHeightOffset;
 
     //UI params
     float m_minNeituoHeight;

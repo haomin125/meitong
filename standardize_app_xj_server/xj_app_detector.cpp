@@ -81,6 +81,26 @@ int AppDetector::getSignalByPurgeMode(const bool bIsResultOK)
 	return resultSiganal;
 }
 
+void AppDetector::testSignal(int & data)
+{
+	test_data++;
+	if(test_data == 1 || test_data == 2)
+	{
+		data = 1;
+	}
+	if(test_data == 3)
+	{
+		data = 2;
+	}
+	if(test_data >= 4)
+	{
+		data = 2;
+		test_data = 0;
+	}
+
+	cout << "vvvvvvvvvvvvvvvvvtest " << test_data << "        " << data <<endl;
+}
+
 //往PLC发送剔除信号
 bool AppDetector::sendResultSignalToPLC(const bool bIsResultOK)
 {
@@ -131,7 +151,14 @@ bool AppDetector::sendResultSignalToPLC(const bool bIsResultOK)
 			{
 				data = iNGData;
 			}
-			m_SecondResult = iNGData;
+			m_SecondResult = iNGData; //合并两次拍照的结果
+			
+			const bool is_test = CustomizedJsonConfig::instance().get<bool>("IS_DUBEG_SIGNAL");
+			if (is_test)
+			{
+				testSignal(data);
+			}
+			
 			if(!dynamic_pointer_cast<AppIoManagerPLC>(ioManager())->writeRegister(address, data))
 			{
 				LogERROR << "extern: Board[" << boardID << "] failed to send result data:" << data << " to PLC register address:" << address;

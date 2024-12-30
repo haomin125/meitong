@@ -211,7 +211,7 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
 }
 vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedImage, const int productCount, const int nCaptureTimes)
 {
-	m_timer.reset();
+	m_timer.reset();    
     processedImage = image.clone();
     int result = (int)DefectType::good; //1?
     //defectResult是行数为m_stParamsA.numTargetInView的二维向量，每一行初始化为vector<int>()，存储缺陷结果
@@ -411,8 +411,14 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box_origin, Rect &box, const
         }else
         {
             cvtColor(resizeImg, grayImage, COLOR_RGB2GRAY);
+            if(m_stParamsB.fParams.at("IS_DEBUG"))
+            {imwrite("/opt/app/test/grayImage.png", grayImage);}
             bilateralFilter(grayImage, bilater, 3, 3, 3);
-            Canny(bilater, binaryImage, 5, 20);     
+            if(m_stParamsB.fParams.at("IS_DEBUG"))
+            {imwrite("/opt/app/test/bilater.png", bilater);}
+            Canny(bilater, binaryImage, 10, 80);
+            if(m_stParamsB.fParams.at("IS_DEBUG"))
+            {imwrite("/opt/app/test/Canny.png", binaryImage);}
         }   
     }
     
@@ -724,7 +730,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
             diagL = std::sqrt(box.width*box.width + box.height*box.height); //瑕疵对角线长度
 
             // cout << "模型检测结果C" << objectId + 2 << "  PROB:" << confidences << " _  AREA:" << tempS << "_  DIAG:" << diagL << endl;
-            s_modelResult = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL);
+            s_modelResult = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-ID" + to_string(objectId + 2);
 
             //防止边缘附近的背景上的瑕疵误检
             //定义一个空的掩膜图，对应ROI区
@@ -756,6 +762,13 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
                 m_vMinDefectArea = m_vMinDefectArea_NC;
                 m_vMinDefectProb = m_vMinDefectProb_NC;
                 m_vMinDefectDiag = m_vMinDefectDiag_NC;
+            }
+            if (nCaptureTimes == 2 && m_stParamsA.boardId == 0)
+            {
+                //非中心区not center
+                m_vMinDefectProb = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM_NC" + to_string(m_stParamsA.boardId + 1) + "_PIC" + to_string(nCaptureTimes));
+                m_vMinDefectArea = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM_NC" + to_string(m_stParamsA.boardId + 1) + "_PIC" + to_string(nCaptureTimes));
+                m_vMinDefectDiag = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM_NC" + to_string(m_stParamsA.boardId + 1) + "_PIC" + to_string(nCaptureTimes));
             }
 
             //后处理判断 OK/NG

@@ -483,10 +483,10 @@ bool AppWorkflow::imagePreProcess()
 		const int numTargets = pView->targetsSize();
 		if(m_runMode == (int)RunMode::RUN_DETECT)
 		{
-			if (dubug_times != 0)
+			if (dubug_times == 1 || dubug_times == 2)
 			{
 				m_nCaptureImageTimes = dubug_times;
-			}					
+			}
 			vector<vector<int>> vTotalResultType = m_pAlgorithm->detectAnalyze(m_workflowImage, m_workflowProcessedImage, m_iProductNumber, m_nCaptureImageTimes);
 			if(vTotalResultType.size() != numTargets)
 			{

@@ -83,11 +83,11 @@ private:
 
 	std::vector<std::shared_ptr<AppTimer>> m_vTimer;
 	std::vector<std::shared_ptr<AppTimer>> m_vTimer_total;
-    std::vector<double> jishi_0;
-    std::vector<double> jishi_1;
-    std::vector<double> jishi1;
-	int signal_0 = 0;
-	int signal_1 = 0;
+    // std::vector<double> jishi_0;
+    // std::vector<double> jishi_1;
+    // std::vector<double> jishi1;
+	// int signal_0 = 0;
+	// int signal_1 = 0;
 
 	std::shared_ptr<ThreadPool> m_pWorkerThread;
 

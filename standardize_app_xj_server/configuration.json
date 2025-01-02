@@ -484,7 +484,7 @@
     "IS_NEED_HANGUP_IMAGE_SAVE_THREAD_BEFORE_IMAGE_PROCESS": false,
     "MAX_BUFFER_IMAGE_SAVE_NUM": 50,
     
-    "IS_USE_BOARDID_KEY": false,
+    "IS_USE_BOARDID_KEY": true,
     "USE_BOARDID_KEY": 1,
     "IS_COUNT_MULTI_DEFECTS_PER_TARGET": true,
     
@@ -515,7 +515,7 @@
     "PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS_LIST": [1050, 1052],
 
     "MOCK_VIDEO_PATH": "/opt/image/1220/",
-    "MOCK_VIDEO_FILES": ["bad原图/gw1/PIC1", "bad原图/gw2/PIC1"],
+    "MOCK_VIDEO_FILES": ["bad原图/gw1/PIC2", "bad原图/gw2/PIC2/1"],
     "MOCK_VIDEO_TYPE": ".png",
     "MOCK_VIDEO_FRAME_TIME_INTERVAL_MS": 1000,
     "CAPTUREIMAGETIMES": 0,
@@ -605,23 +605,27 @@
         "MASK_THR": [0.5, 0.5],
         "is_board": [4, 4, 4, -1],
         "LVBO": [3],
-        "CANNYTHRE": [200, 230],
+        "CANNYTHRE": [100, 230],
         
-        "DEFECT_MIN_AREA_CAM_C1": [12,11,11,50,20,23,2,8,5,0],
-        "DEFECT_MIN_DIAG_CAM_C1": [12,3,2,11,4,3,10,3,2,0],
-        "DEFECT_MIN_PROB_CAM_C1": [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
-        "DEFECT_MIN_AREA_CAM_NC1": [20,2222,33,33,20,231,23,3,3,0],
-        "DEFECT_MIN_DIAG_CAM_NC1": [20,22,11,21,4,10,3,2,2,0],
-        "DEFECT_MIN_PROB_CAM_NC1": [0.8,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
+        "DEFECT_MIN_AREA_CAM1_PIC1_C": [12,11,11,50,20,23,2,8,5,0],
+        "DEFECT_MIN_DIAG_CAM1_PIC1_C": [12,3,2,11,4,3,10,3,2,0],
+        "DEFECT_MIN_PROB_CAM1_PIC1_C": [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
+        "DEFECT_MIN_AREA_CAM1_PIC1_NC": [20,2222,33,33,20,231,23,3,3,0],
+        "DEFECT_MIN_DIAG_CAM1_PIC1_NC": [20,22,11,21,4,10,3,2,2,0],
+        "DEFECT_MIN_PROB_CAM1_PIC1_NC": [0.8,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
         "BOX_BINARY_THRESHOLD1":[10, 10],
         "BOX_BINARY_AREA_THRESHOLD1":[40000, 40000],
 
-        "DEFECT_MIN_AREA_CAM_C2": [11,11,11,50,20,23,2,8,5,0],
-        "DEFECT_MIN_DIAG_CAM_C2": [11,3,2,11,4,3,2,3,2,0],
-        "DEFECT_MIN_PROB_CAM_C2": [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
-        "DEFECT_MIN_AREA_CAM_NC2": [20,2222,33,33,20,231,23,3,3,0],
-        "DEFECT_MIN_DIAG_CAM_NC2": [20,22,11,21,4,6,3,2,2,0],
-        "DEFECT_MIN_PROB_CAM_NC2": [0.8,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3],
+        "DEFECT_MIN_AREA_CAM1_PIC2_NC": [20,2222,33,33,20,231,23,3,3,0],
+        "DEFECT_MIN_DIAG_CAM1_PIC2_NC": [20,22,11,21,4,10,3,2,2,0],
+        "DEFECT_MIN_PROB_CAM1_PIC2_NC": [0.85,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
+
+        "DEFECT_MIN_AREA_CAM2_PIC1_C": [11,11,11,50,20,23,2,8,5,0],
+        "DEFECT_MIN_DIAG_CAM2_PIC1_C": [11,3,2,11,4,3,2,3,2,0],
+        "DEFECT_MIN_PROB_CAM2_PIC1_C": [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
+        "DEFECT_MIN_AREA_CAM2_PIC1_NC": [20,2222,33,33,20,231,23,3,3,0],
+        "DEFECT_MIN_DIAG_CAM2_PIC1_NC": [20,22,11,21,4,6,3,2,2,0],
+        "DEFECT_MIN_PROB_CAM2_PIC1_NC": [0.8,0.6,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
         "BOX_BINARY_THRESHOLD2":[220, 30],
         "BOX_BINARY_AREA_THRESHOLD2":[40000, 40000],
 
@@ -643,16 +647,10 @@
     },
 
     "PRIVATED_ALGORITHM_STRING_PARAMS_CONFIG":{
-        "MODEL_PATH_CAM1":"./models/best_1219.engine",
-        "MODEL_PATH_CAM2":"./models/best_1219.engine",
-        "MIANZHI_HUNLIAO_MODEL_PATH": "./models/tiangai/tiangaihunbanemb.engine",
-
-        "MIANZHI_HUNLIAO_MODEL_EMB_PATH": "./models/tiangai/tiangaihunban.json",
-
+        "MODEL_PATH_CAM1":"./models/best_1227.engine",
+        "MODEL_PATH_CAM2":"./models/best_1227.engine",
         "IPU": "MEITONG",
 
-        "CHARACTER_IMAGE_PATH": "./template/tiangai/1.png",
-        "TIAOXINGMA_IMAGE_PATH": "./template/tiangai/2.png",
         "LOGO_IMAGE_PATH": "./template/tiangai/3.png"
     }
 }

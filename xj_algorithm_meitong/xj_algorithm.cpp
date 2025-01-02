@@ -55,7 +55,8 @@ enum DefectType:int
 // #define CLASS_WIDTH 448
 
 #define TARGET_SIZE 640
-#define  EXTEND_LENGTH 60
+#define EXTEND_LENGTH 60
+
 //YOLO
 #define SEG_SCALEFACTOR 4
 #define SEG_CHANNELS 32
@@ -115,12 +116,12 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
         m_vMinDefectArea.clear();
         m_vMinDefectProb.clear();
         m_vMinDefectDiag.clear();
-        m_vMinDefectProb_C.clear();
-        m_vMinDefectArea_C.clear();
-        m_vMinDefectDiag_C.clear();
-        m_vMinDefectProb_NC.clear();
-        m_vMinDefectArea_NC.clear();
-        m_vMinDefectDiag_NC.clear();
+        m_vMinDefectProb_C_pic1.clear();
+        m_vMinDefectArea_C_pic1.clear();
+        m_vMinDefectDiag_C_pic1.clear();
+        m_vMinDefectProb_NC_pic1.clear();
+        m_vMinDefectArea_NC_pic1.clear();
+        m_vMinDefectDiag_NC_pic1.clear();
         m_vDisableDefectType.clear();
         
         m_maxBatchSize = m_stParamsB.vecFParams.at("MAX_BATCH_SIZE")[m_stParamsA.boardId];
@@ -131,48 +132,15 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
         //YOLOV8
         const int maskThr = m_stParamsB.vecFParams.at("MASK_THR")[m_stParamsA.boardId]; 
         const int detbox_num = inputWidth * inputHeight / 32 / 32 * 21; //yolo标准式可化简为：w*h/32/32*(4*4+2*2+1*1)
-        //YOLOV8
 
-        if(m_stParamsB.fParams.at("IS_USE_MODEL_CONFIG"))   //? 此处没有执行
-        {
-            string json_path = model_path;
-            string tmp = ".engine";
-            json_path = json_path.replace(json_path.find(tmp), tmp.length(), ".json");
-
-            ifstream ifs(json_path, std::ios_base::in);
-            ptree rootNode;
-            vector<float> vTest1, vTest2;
-            read_json(ifs, rootNode);
-            for(ptree::iterator itr=rootNode.begin();itr!=rootNode.end();++itr)
-            {
-                string sKey = itr->first;   //itr->first获取当前元素的键，itr->second获取当前元素的值
-                if(sKey == "MIN_PROB")
-                {   
-                    for(const auto &it : rootNode.get_child(sKey)) //it为常量引用，表示不能修改其指向的内容；auto表示编译器自动推断it类型
-                    {
-                        m_vMinDefectProb.emplace_back(it.second.get_value<float>());
-                    }
-                }
-                else if(sKey == "MIN_AREA")
-                {
-                    for(const auto &it : rootNode.get_child(sKey))
-                    {
-                        m_vMinDefectArea.emplace_back(it.second.get_value<float>());
-                    }
-                }
-            }
-        }
-        else    //此处执行
-        {
-            //中心区center
-            m_vMinDefectProb_C = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM_C" + to_string(m_stParamsA.boardId + 1));
-            m_vMinDefectArea_C = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM_C" + to_string(m_stParamsA.boardId + 1));
-            m_vMinDefectDiag_C = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM_C" + to_string(m_stParamsA.boardId + 1));
-            //非中心区not center
-            m_vMinDefectProb_NC = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM_NC" + to_string(m_stParamsA.boardId + 1));
-            m_vMinDefectArea_NC = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM_NC" + to_string(m_stParamsA.boardId + 1));
-            m_vMinDefectDiag_NC = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM_NC" + to_string(m_stParamsA.boardId + 1));
-        }
+        //中心区center
+        m_vMinDefectProb_C_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_C");
+        m_vMinDefectArea_C_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_C");
+        m_vMinDefectDiag_C_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_C");
+        //非中心区not center
+        m_vMinDefectProb_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
+        m_vMinDefectArea_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
+        m_vMinDefectDiag_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
 
         // m_tensortRtInfer = make_shared<xj::TensorrtEngineBase>();
         m_tensorrtYoloDL = make_shared<YoloClassifier>(model_path, YoloOutputType::DETECTION, m_maxBatchSize, numCategory, inputWidth, inputHeight, inputChannel);
@@ -246,7 +214,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     //step1: locate box
     m_timer.reset();
     Rect roiRect, roi_origin;
-    if(!locateBox(image, roi_origin, roiRect, nCaptureTimes)) //当定位失败时，result被强制为defect1=2
+    if(!locateBox(image, roi_origin, roiRect, nCaptureTimes)) //当定位失败时，result被强制为defect1=2; 扩展ROI为正方形
     {
         cout << "[ERROR] locateBox" << endl; 
         result = (int)DefectType::defect10;
@@ -266,47 +234,30 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : locateBox time cost " << t2 << " seconds" << endl;
 
     Mat roiImage = image(roiRect);
+    m_product_diameter = roi_origin.width > roi_origin.height ? roi_origin.width : roi_origin.height;
+    m_productCentre = m_product_diameter / 5.7; //中心区420
 
-    //STEP1：定义一个空的掩膜图,对应光学区/非光学区
-    int maskW1 = roiImage.cols;
-    int maskH1 = roiImage.rows;
-    // cv::Mat mask1 = cv::Mat::zeros(maskH1, maskW1, CV_8UC1);
-    // cv::Mat mask2 = mask1.clone();  //
-    cv::Point center(maskW1/2, maskH1/2);
-    int product_diameter = roi_origin.width > roi_origin.height ? roi_origin.width : roi_origin.height;
-    int radius1 = product_diameter / 5.7; //中心区420
-    int radius2 = product_diameter / 2 + product_diameter / 30;     //留1/30背景区
-    //STEP2：定义一个空的掩膜图,对应前景区/背景区
-    cv::Mat mask2 = cv::Mat::zeros(maskH1, maskW1, CV_8UC1);  //CV_8UC1：8位单通道图像
-    cv::circle(mask2, center, radius2, cv::Scalar(255), -1);    
-    //STEP3: 屏蔽背景区域,用mask2和输入图片做bitwise_and
-    cv::Mat roiImage_;
-    cv::bitwise_and(roiImage, roiImage, roiImage_, mask2);
-
-    if(m_stParamsB.fParams.at("IS_DEBUG"))
-    {
-        imwrite("/opt/app/test/mask2.png", mask2);
-        imwrite("/opt/app/test/roiImage.png", roiImage);
-        imwrite("/opt/app/test/roiImage_.png", roiImage_);
-    }
-
+    //step2: 屏蔽背景区域
+    Mat resultImage;
+    missBackground(roiImage, resultImage);
+    
     // 红光暗场屏蔽区域
     if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
     {
         const int radius_is = 2400 / 2.6;
         int radius3 = 900; 
-        cv::Mat mask3 = cv::Mat::ones(maskH1, maskW1, CV_8UC1);  //CV_8UC1：8位单通道图像
-        cv::circle(mask3, center, radius_is, cv::Scalar(0), -1);
+        cv::Mat mask3 = cv::Mat::ones(resultImage.rows, resultImage.cols, CV_8UC1);  //CV_8UC1：8位单通道图像
+        cv::circle(mask3, Point(resultImage.cols / 2, resultImage.rows / 2), radius_is, cv::Scalar(0), -1);
         cv::Mat dst;
-        roiImage_.copyTo(dst,mask3);
-        roiImage_ = dst.clone();
-        imwrite("/opt/app/test/红光暗场屏蔽区域.png", roiImage_);
+        resultImage.copyTo(dst,mask3);
+        resultImage = dst.clone();
+        imwrite("/opt/app/test/红光暗场屏蔽区域.png", resultImage);
     }    
     //step3:split ROI 
     vector<Rect> vTargetRect;
     vector<Mat> vTargetImage;
     m_timer.reset();
-    if(!extractROI(roiImage_, roiRect, vTargetRect, vTargetImage))
+    if(!extractROI(resultImage, roiRect, vTargetRect, vTargetImage))
     {
         cout << "ERROR extractROI" << endl; 
         result = (int)DefectType::defect1;
@@ -322,8 +273,8 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     for (int i = 0; i < vTargetImage.size(); i++)   // 
     {
         result = (int)DefectType::good;
-        std::string s_modelResult; //模型命名
-        if(!detectByDL(maskW1, maskH1, radius1, radius2, center, roiImage_, vTargetRect[i], vTargetImage[i], result, defectResult, processedImage, s_modelResult, nCaptureTimes))
+        std::string s_ResultIdName; //结果ID命名在图片上
+        if(!detectByDL(resultImage, vTargetRect[i], vTargetImage[i], result, defectResult, processedImage, s_ResultIdName, nCaptureTimes))
         {
             result = (int)DefectType::defect1;
             defectResult[0].emplace_back(result);
@@ -343,23 +294,19 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
             {
                 // cout << "~------------------- " << m_stParamsA.pSaveImageMultiThread << endl;
                 string sFilePath = (result == (int)DefectType::good) ? OK_SOURCE_IMAGE_SAVE_PATH : NG_SOURCE_IMAGE_SAVE_PATH;     
-                string sCustomerEnd = "CNT" + to_string(productCount) + "-PIC" + to_string(nCaptureTimes) + s_modelResult;
+                string sCustomerEnd = "CNT" + to_string(productCount) + "-PIC" + to_string(nCaptureTimes) + s_ResultIdName;
                 string sFileName = getAppFormatImageNameByCurrentTimeXJ(result, m_stParamsA.boardId, 0, i, m_stParamsA.sProductName, m_stParamsA.sProductLot, sCustomerEnd);
                 m_stParamsA.pSaveImageMultiThread->AddImageData(vTargetImage[i], sFilePath, sFileName, ".png");
             }
         }
     }  
-    //在roiImage上画圆，可视化区分中心区/非中心区
-    cv::circle(processedImage, center, radius1, Scalar(0, 255, 0), 2, cv::LINE_8);
+    //在UI显示，可视化区分中心区/非中心区
+    cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productCentre, Scalar(0, 255, 0), 2, cv::LINE_8);
 
-    // for (int i = 0; i < vTargetRect.size(); i++)
-    // {
-    //     rectangle(processedImage, vTargetRect[i], Scalar(255, 255, 255), 5, 8); 
-    // }  
     const double t4 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : detectByDL time cost " << t4 << " seconds" << endl;
     jishi1.emplace_back(t4);
-    if (jishi1.size() == 100)
+    if (jishi1.size() == 100 && m_stParamsB.fParams.at("IS_DEBUG"))
     {
         int i = 0;
         for (double num : jishi1)
@@ -477,6 +424,14 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box_origin, Rect &box, const
     box.y -= EXTEND_LENGTH; //左上角纵坐标
     box.width += EXTEND_LENGTH * 2;
     box.height += EXTEND_LENGTH * 2;
+    if (box.width > box.height)
+    {
+        box.height = box.width;
+    }
+    else
+    {
+        box.width = box.height;
+    }
     box &= globalRC;
     if(box.height<=0 || box.width<=0)
     {
@@ -574,81 +529,8 @@ Mat XJAlgorithm::preprocessImage(const Mat &roiImage)
     return targetImage;
 }
 
-// // add
-// //计算两个box之间的最小距离
-// int XJAlgorithm::calculateMinDistance(const cv::Rect& box1, const cv::Rect& box2)
-// {
-//     int dx = std::max(box1.x - (box2.x + box2.w), box2.x - (box1.x + box1.w));
-//     int dy = std::max(box1.y - (box2.y + box2.h), box2.y - (box1.y + box1.h));
-//     return std::max(dx, 0) + std::max(dy, 0); // 返回横向和纵向距离之和
-// }
-
-// // cv::Rect getRect() const {
-// //     return cv::Rect(x, y, w, h);
-// cv::Rect XJAlgorithm::getRect(cv::Rect& box){    //?
-//     return cv::Rect(x, y, w, h);
-// }
-
-// //判断两个box是否相交
-// bool XJAlgorithm::isIntersecting(const cv::Rect& box1, const cv::Rect& box2) {
-//     // return (box1.getRect() & box2.getRect()).area() > 0; // 使用 OpenCV 检查相交
-//     return (getRect(box1) & getRect(box2)).area() > 0;
-// }
-
-// // 计算相交的面积
-// int XJAlgorithm::calculateIntersectionArea(const cv::Rect& box1, const cv::Rect& box2) {
-//     // return (box1.getRect() & box2.getRect()).area();    return (getRect(box1) & getRect(box2)).area();
-// }
-
-// // 计算相并的面积
-// int XJAlgorithm::calculateUnionArea(const cv::Rect& box1, const cv::Rect& box2) {
-//     // return (box1.getRect() & box2.getRect()).area();
-//     return (getRect(box1) | getRect(box2)).area();
-// }
-
-// //
-// int XJAlgorithm::itrXianshang(std::vector<cv::Rect>& boxes, float& diagLXianshang) 
-// {
-    
-//     // 遍历所有 box，计算相近边的最小距离和相交情况
-//     for (size_t i = 0; i < boxes.size(); ++i) {
-//         for (size_t j = i + 1; j < boxes.size(); ++j) {
-            
-//             const Box& box1 = boxes[i];
-//             const Box& box2 = boxes[j];
-
-//             // 计算最小距离
-//             int minDistance = calculateMinDistance(box1, box2);
-//             std::cout << "Box " << i << " 和 Box " << j << " 之间的最小距离: " << minDistance << std::endl;
-//             if (minDistance < 20){
-//                 float diagLi = std::sqrt(boxes[i].width*boxes[i].width + boxes[i].height*boxes[i].height);
-//                 float diagLj = std::sqrt(boxes[j].width*boxes[j].width + boxes[j].height*boxes[j].height);
-//                 diagLXianshang = diagLXianshang + diagLi + diagLj;
-//             }
-
-//             // 判断是否相交
-//             if (isIntersecting(box1, box2)) {
-//                 int intersectionArea = calculateIntersectionArea(box1, box2);
-//                 int unionArea = calculateUnionArea(box1, box2);
-//                 if ((intersectionArea/unionArea) > 0.01){   //交并比
-//                     float diagLi = std::sqrt(boxes[i].width*boxes[i].width + boxes[i].height*boxes[i].height);
-//                     float diagLj = std::sqrt(boxes[j].width*boxes[j].width + boxes[j].height*boxes[j].height);
-//                     diagLXianshang = diagLXianshang + diagLi + diagLj;
-//                 }
-//                 std::cout << "Box " << i << " 和 Box " << j << " 相交，交集面积: " << intersectionArea << std::endl;
-//                 if 
-//             } else {
-//                 std::cout << "Box " << i << " 和 Box " << j << " 不相交。" << std::endl;
-//             }
-//         }
-//     }
-
-//     return 0;
-// }
-// // add
-
 // bool XJAlgorithm::detectByDL(Mat &roiImage, const Rect &roiRect, Mat &targetImage, int &result, vector<vector<int>> &defectResult, Mat &processedImage)
-bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius2, cv::Point &center1, cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult, const int nCaptureTimes)
+bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_ResultIdName, const int nCaptureTimes)
 {
     processedImage = roiImage.clone();
     //step1:pre-process
@@ -668,9 +550,8 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
 
     // const double t5 = m_timer.elapsed() - t4;
     // cout << "小图推理时间: Board[" << m_stParamsA.boardId << "] : getDetectionResult time cost " << t5 << " seconds" << endl;
-
     // jishi.emplace_back(t5);
-    // if (jishi.size() == 1000)
+    // if (jishi.size() == 1000 && m_stParamsB.fParams.at("IS_DEBUG"))
     // {
     //     int i = 0;
     //     for (double num : jishi)
@@ -689,10 +570,7 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
     // step3:post-process
     // float scale = std::max(roiImage.rows, roiImage.cols) / (float)TARGET_SIZE;  //归一化系数
 	// cout<<"detectionOutput.size():  "<< detectionOutput.size() <<endl;
-
-    int numDianshang = 0;
-    std::vector<cv::Rect> boxesDianshang;
-
+    // 单张小图训练，只循环一次
     for	(int j=0; j<detectionOutput.size(); j++) {
 		Rect box;
 		int objectId;
@@ -703,11 +581,11 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
         // float diagXianshang = 0;
         // cv::Mat maskXianshang = cv::Mat::zeros(640, 640, CV_8UC1);
 
-        int numXianshang = 0;
-        std::vector<cv::Rect> boxesXianshang;
+        std::vector<cv::Rect> boxesXianshang, boxesDianshang, boxesYiwudian;
         // float diagLXianshang;
 
 	    // cout<<"detectionOutput.at(j).size():  "<< detectionOutput.at(j).size() <<endl;
+        // 有多少个瑕疵循环多少次
 		for	(int i=0; i<detectionOutput.at(j).size(); i++) {
             YoloOutputDetect &det = detectionOutput[j][i];
 			objectId = det.id;
@@ -726,156 +604,197 @@ bool XJAlgorithm::detectByDL(int &maskW1, int &maskH1, int &radius1, int &radius
 
 			//tempS = box.width*box.width*m_fPPS*m_fPPS + box.height*box.height*m_fPPS*m_fPPS;    //转化为物理尺寸的对角线平方
             //tempS = box.width*m_fPPS*box.height*m_fPPS;    //物理尺寸的面积
-            tempS = box.area();     
+            tempS = box.area();
             diagL = std::sqrt(box.width*box.width + box.height*box.height); //瑕疵对角线长度
 
             // cout << "模型检测结果C" << objectId + 2 << "  PROB:" << confidences << " _  AREA:" << tempS << "_  DIAG:" << diagL << endl;
-            s_modelResult = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-ID" + to_string(objectId + 2);
+            s_ResultIdName = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-ID" + to_string(objectId + 2);
 
             //防止边缘附近的背景上的瑕疵误检
             //定义一个空的掩膜图，对应ROI区
-            cv::Mat mask3 = cv::Mat::zeros(maskH1, maskW1, CV_8UC1);
+            cv::Mat mask3 = cv::Mat::zeros(roiImage.rows, roiImage.cols, CV_8UC1);
             cv::Mat mask4 = mask3.clone();
-            cv::Point center3 = center1;
-            cv::circle(mask3, center3, radius2, cv::Scalar(255), -1);
+            cv::circle(mask3, Point(roiImage.cols / 2, roiImage.rows / 2), m_product_diameter / 2, cv::Scalar(255), -1);
             //对每个检测到的瑕疵定义一个掩膜图
             cv::Rect roi(box.x, box.y, box.width, box.height);
             cv::rectangle(mask4, roi, cv::Scalar(255), -1);
             cv::Mat mask5;
             cv::bitwise_and(mask3, mask4, mask5);
             int whiteArea = cv::countNonZero(mask5);
-            // std::cout << "相交区域的面积： " << whiteArea << std::endl;
+            std::cout << "相交区域的面积： " << whiteArea << std::endl;
 
             float centerX = box.x + box.width/2;    
             float centerY = box.y + box.height/2;
             //计算产品中心到瑕疵中心的距离，与radius1比较大小，由此判断调用松/紧参数
-            float d_defect2center = std::sqrt((centerX-maskW1/2)*(centerX-maskW1/2) + (centerY-maskH1/2)*(centerY-maskH1/2));
-            if (d_defect2center > radius2 && whiteArea < 10){    //如果检测到的瑕疵的中心点在背景区（防止模型异常或早期的训练数据影响）
+            float d_defect2center = std::sqrt((centerX-roiImage.cols/2)*(centerX-roiImage.cols/2) + (centerY-roiImage.rows/2)*(centerY-roiImage.rows/2));
+            if (d_defect2center > (m_product_diameter + roiImage.cols) / 4 && whiteArea < 10){    //如果检测到的瑕疵的中心点在背景区（防止模型异常或早期的训练数据影响）
+                cout << "放过背景上的瑕疵" << endl;
                 continue;
             }
-            if (d_defect2center <= radius1){
-                m_vMinDefectArea = m_vMinDefectArea_C;
-                m_vMinDefectProb = m_vMinDefectProb_C;
-                m_vMinDefectDiag = m_vMinDefectDiag_C;
+            if (d_defect2center <= m_productCentre){
+                m_vMinDefectArea = m_vMinDefectArea_C_pic1;
+                m_vMinDefectProb = m_vMinDefectProb_C_pic1;
+                m_vMinDefectDiag = m_vMinDefectDiag_C_pic1;
             }
-            if (d_defect2center > radius1){
-                m_vMinDefectArea = m_vMinDefectArea_NC;
-                m_vMinDefectProb = m_vMinDefectProb_NC;
-                m_vMinDefectDiag = m_vMinDefectDiag_NC;
+            if (d_defect2center > m_productCentre){
+                m_vMinDefectArea = m_vMinDefectArea_NC_pic1;
+                m_vMinDefectProb = m_vMinDefectProb_NC_pic1;
+                m_vMinDefectDiag = m_vMinDefectDiag_NC_pic1;
             }
             if (nCaptureTimes == 2 && m_stParamsA.boardId == 0)
             {
                 //非中心区not center
-                m_vMinDefectProb = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM_NC" + to_string(m_stParamsA.boardId + 1) + "_PIC" + to_string(nCaptureTimes));
-                m_vMinDefectArea = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM_NC" + to_string(m_stParamsA.boardId + 1) + "_PIC" + to_string(nCaptureTimes));
-                m_vMinDefectDiag = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM_NC" + to_string(m_stParamsA.boardId + 1) + "_PIC" + to_string(nCaptureTimes));
+                m_vMinDefectProb = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
+                m_vMinDefectArea = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
+                m_vMinDefectDiag = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
             }
 
-            //后处理判断 OK/NG
+            // 瑕疵：后处理判断 OK/NG
             if (tempS > m_vMinDefectArea[objectId] && diagL >= m_vMinDefectDiag[objectId] && confidences >= m_vMinDefectProb[objectId] && whiteArea >= 1)
             {  
                 Scalar scalar = Scalar(0,255,255);
-                // value = (int)LocalLevel::C;
                 result = objectId + 2;  //good是1，瑕疵从2开始
                 defectResult[0].emplace_back(result);
-                //rectangle(m_workflowProcessedImage, box, scalar, 2, 8);
-                rectangle(roiImage, box, scalar, 5, 8);     
-                processedImage = roiImage.clone();          
-            
-            }	  
+                rectangle(roiImage, box, scalar, 5, 8);
+                // line(roiImage, Point(centerX, centerY), Point(roiImage.cols/2, roiImage.rows/2), scalar, 2);
+                processedImage = roiImage.clone();
+                continue;
+            }
             
             //TO DO 2: 对角线、长宽、面积之间的模糊关系？
-			//string sizeStr = "S" + getStringFromFloat(tempS,1) + " C" + getStringFromFloat(detectionOutput.at(j).at(i).confidence);
-            if (objectId == 1)  //线伤
-            {   
-                if (diagL > 5)
-                {
-                    numXianshang += 1;
-                    boxesXianshang.push_back(box);    
-                }
-            }    
-
-            if (objectId == 2)  //点伤
+            switch (objectId + 2)
             {
-                numDianshang += 1;
-                boxesDianshang.push_back(box); 	
+            case DefectType::defect2:
+                if (diagL > 5 && confidences >= m_vMinDefectProb[objectId])
+                {
+                    boxesXianshang.push_back(box);
+                }
+                break;
+            case DefectType::defect3:
+                if (tempS > 5 && confidences >= m_vMinDefectProb[objectId])
+                {
+                    boxesDianshang.push_back(box);
+                }
+                break;
+            case DefectType::defect7:
+                if (tempS > 5 && confidences >= m_vMinDefectProb[objectId])
+                {
+                    boxesYiwudian.push_back(box);
+                }
+                break;            
+            default:
+                break;
             }
 		}
         
-        //在同一张小图上检测更小的线伤
-        for (int i = 1; i < boxesXianshang.size(); i++)
+        //检测线伤：线图上线伤累积面积和对角线
+        if (!detectXianShang(boxesXianshang, m_vMinDefectArea, m_vMinDefectDiag, objectId))
         {
-            Scalar scalar = Scalar(0,0,255);
-            // value = (int)LocalLevel::C;
-            result = objectId + 2;  //good是1，瑕疵从2开始
-            defectResult[0].emplace_back(result);
-            //rectangle(m_workflowProcessedImage, box, scalar, 2, 8);
-            rectangle(roiImage, boxesXianshang[i-1], scalar, 5, 8);     
-            processedImage = roiImage.clone();
-        }                  		
+            for (int i = 0; i < boxesXianshang.size(); i++)
+            {
+                Scalar scalar = Scalar(0,255,255);
+                result = (int)DefectType::defect2;
+                defectResult[0].emplace_back(result);
+                rectangle(roiImage, boxesXianshang[i], scalar, 5, 8);     
+                processedImage = roiImage.clone();
+                continue;
+            }
+        }
+        //检测点伤：
+        if (!detectDianShang(boxesDianshang, m_vMinDefectArea, m_vMinDefectDiag, objectId))
+        {
+            for (int i = 0; i < boxesDianshang.size(); i++)
+            {
+                Scalar scalar = Scalar(0,255,255);
+                result = (int)DefectType::defect3;
+                defectResult[0].emplace_back(result);
+                rectangle(roiImage, boxesDianshang[i], scalar, 5, 8);
+                processedImage = roiImage.clone();
+                continue;
+            }
+        }
+        //检测异物点：
+        if (!detectYiWuDian(boxesYiwudian, m_vMinDefectArea, m_vMinDefectDiag, objectId))
+        {
+            for (int i = 0; i < boxesYiwudian.size(); i++)
+            {
+                Scalar scalar = Scalar(0,255,255);
+                result = (int)DefectType::defect3;
+                defectResult[0].emplace_back(result);
+                rectangle(roiImage, boxesYiwudian[i], scalar, 5, 8);
+                processedImage = roiImage.clone();
+                continue;
+            }
+        }
 	}
-
-    //在这里判断点伤（基于整张ROI图），以及别的需要基于整张ROI图判断的瑕疵，以及存ROI图
-
     return true;
-    // for (int i = 0; i != vResult.size(); ++i)
-    // {
-    //     for (int j = 0; j != vResult[i].size(); ++j)
-    //     {
-    //         Detection &det = vResult[i][j];
-    //         Rect box((det.bbox[0] - det.bbox[2] / 2) * scale, (det.bbox[1] - det.bbox[3] / 2) * scale, det.bbox[2] * scale, det.bbox[3] * scale);
-    //         float boxArea = m_stParamsB.fParams.at("IS_USE_MODEL_CONFIG")?(det.bbox[2]*det.bbox[3])/((float)TARGET_SIZE*(float)TARGET_SIZE):box.area();
-    //         box.x += roiRect.x;
-    //         box.y += roiRect.y;
-    //         // int width = box.width;
-    //         // int height = box.height;
-    //         if (!isDisableDet(det.class_id))
-    //         {
-    //             if (boxArea > m_vMinDefectArea[(int)det.class_id] && det.conf >= m_vMinDefectProb[(int)det.class_id])
-    //             {
-    //                 result = det.class_id + 2;
-    //                 defectResult[0].emplace_back(result);
-    //                 rectangle(processedImage, box, Scalar(0, 0, 255), 5);
-    //                 stringstream ss;
-    //                 string text1;
-    //                 ss.setf(ios::fixed);
-    //                 ss << setprecision(2) << det.conf;
-    //                 text1 = ss.str();
-    //                 string text = to_string((int)det.class_id) + " " + text1;
-    //                 int y = box.y-70>0?box.y:box.y+70;
-    //                 int x = box.x+box.width+200<processedImage.cols?box.x:processedImage.cols-200;
-    //                 ft2->putText(processedImage, text, cv::Point(x, y), 70, DRAW_NG_COLOR, cv::FILLED, cv::LINE_AA, true);
-    //                 if(m_stParamsB.fParams.at("IS_DEBUG"))
-    //                 {
-    //                     // std::cout << "cam[" << m_stParamsA.boardId + 1 << "]    ---det.class_id:" << det.class_id << "---det.conf:" << det.conf << "---box.area:" << box.area() << std::endl;
-    //                     std::cout << "cam[" << m_stParamsA.boardId + 1 << "]    ---det.class_id:" << det.class_id << "---det.conf:" << det.conf << "---box.area:" << boxArea << std::endl;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    // return true;
-
 }
 
-// bool XJAlgorithm::isDisableDet(const float defectType)
-// {
-//     for(size_t i = 0; i != m_vDisableDefectType.size(); ++i)
-//     {
-//         if(m_vDisableDefectType[i] ==  defectType)  //比较输出结果和配置文件类别
-//         {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
+bool XJAlgorithm::detectXianShang(const std::vector<cv::Rect> &boxesXianshang, const std::vector<float> area, const std::vector<float> diag, const int objectId)
+{
+    if (boxesXianshang.size() > 0)
+    {
+        float totalArea = 0;
+        float totalDiag = 0;
+        for (int i = 0; i < boxesXianshang.size(); i++)
+        {
+            totalArea += boxesXianshang[i].area();
+            totalDiag += sqrt(boxesXianshang[i].width * boxesXianshang[i].width + boxesXianshang[i].height * boxesXianshang[i].height);
+        }
+        cout << " totalArea  "  << totalArea << endl;
+        cout << " totalDiag  "  << totalDiag << endl;
+        if (totalArea > area[objectId] || totalDiag > diag[objectId])
+        {
+            cout << "线伤累加判断瑕疵" << endl;
+            return false;
+        }
+    }
+    return true;
+}
 
+bool XJAlgorithm::detectDianShang(const std::vector<cv::Rect> &boxesDianshang, const std::vector<float> area, const std::vector<float> diag, const int objectId)
+{
+    if (boxesDianshang.size() > 0)
+    {
+        float totalArea = 0;
+        float totalDiag = 0;
+        for (int i = 0; i < boxesDianshang.size(); i++)
+        {
+            totalArea += boxesDianshang[i].area();
+            totalDiag += sqrt(boxesDianshang[i].width * boxesDianshang[i].width + boxesDianshang[i].height * boxesDianshang[i].height);
+        }
+        cout << " totalArea  "  << totalArea << endl;
+        cout << " totalDiag  "  << totalDiag << endl;
+        if (totalArea > area[objectId] || totalDiag > diag[objectId])
+        {
+            cout << "点伤累加判断瑕疵" << endl;
+            return false;
+        }
+    }
+    return true;
+}
 
-
-
-
-
-
+bool XJAlgorithm::detectYiWuDian(const std::vector<cv::Rect> &boxesYiwudian, const std::vector<float> area, const std::vector<float> diag, const int objectId)
+{
+    if (boxesYiwudian.size() > 0)
+    {
+        float totalArea = 0;
+        float totalDiag = 0;
+        for (int i = 0; i < boxesYiwudian.size(); i++)
+        {
+            totalArea += boxesYiwudian[i].area();
+            totalDiag += sqrt(boxesYiwudian[i].width * boxesYiwudian[i].width + boxesYiwudian[i].height * boxesYiwudian[i].height);
+        }
+        cout << " totalArea  "  << totalArea << endl;
+        cout << " totalDiag  "  << totalDiag << endl;
+        if (totalArea > area[objectId] || totalDiag > diag[objectId])
+        {
+            cout << "异物点累加判断瑕疵" << endl;
+            return false;
+        }
+    }
+    return true;
+}
 
 
 

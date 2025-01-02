@@ -200,7 +200,7 @@ bool getOffsetPolyMasks(cv::Mat& canvas, std::vector<cv::Point2i>& offsets, std:
 bool Hough_Circle(const cv::Mat &image);
 bool findHorizontalEdge(const cv::Mat &roiImage, int &x, int iThresh, bool bIsReverse, bool bIsDarkLight);
 bool findVerticalEdge(const cv::Mat &roiImage, int &y, int iThresh, bool bIsReverse, bool bIsDarkLight);
-
+bool missBackground(const cv::Mat &roiImage, cv::Mat &resultImage);
 cv::Mat makeSquareImage(const cv::Mat &image);
 
 bool xjTemplateMatch(const cv::Mat &image, const cv::Mat &templImage, cv::Rect &matchRC, const float score = 0.5f, const float scale = 1.0f);

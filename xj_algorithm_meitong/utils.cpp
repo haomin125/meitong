@@ -356,6 +356,27 @@ bool getOffsetPolyMasks(Mat& canvas,vector<Point2i>& offsets,vector<vector<Point
     return true;
 }
 
+bool missBackground(const cv::Mat &roiImage, Mat &resultImage)
+{
+    //STEP1：定义一个空的掩膜图,对应光学区/非光学区
+    int maskW1 = roiImage.cols;
+    int maskH1 = roiImage.rows;
+    cv::Point center(maskW1 / 2, maskW1 / 2);
+    //STEP2：定义一个空的掩膜图,对应前景区/背景区
+    cv::Mat mask = cv::Mat::zeros(maskH1, maskW1, CV_8UC1);  //CV_8UC1：8位单通道图像
+    cv::circle(mask, center, maskW1 / 2, cv::Scalar(255), -1);    
+    //STEP3: 屏蔽背景区域,用mask2和输入图片做bitwise_and
+    cv::Mat roiImage_;
+    cv::bitwise_and(roiImage, roiImage, resultImage, mask);
+    if(1)
+    {
+        imwrite("/opt/app/test/mask.png", mask);
+        imwrite("/opt/app/test/roiImage.png", roiImage);
+        imwrite("/opt/app/test/resultImage.png", resultImage);
+    }
+    return true;
+}
+
 bool findHorizontalEdge(const cv::Mat &roiImage, int &x, int iThresh, bool bIsReverse, bool bIsDarkLight)
 {
      x  = -1;

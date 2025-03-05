@@ -133,7 +133,7 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
         const int maskThr = m_stParamsB.vecFParams.at("MASK_THR")[m_stParamsA.boardId]; 
         const int detbox_num = inputWidth * inputHeight / 32 / 32 * 21; //yolo标准式可化简为：w*h/32/32*(4*4+2*2+1*1)
 
-        //中心区center
+        //中心区center 第一次拍照
         m_vMinDefectProb_C_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_C");
         m_vMinDefectArea_C_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_C");
         m_vMinDefectDiag_C_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_C");
@@ -141,6 +141,15 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
         m_vMinDefectProb_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
         m_vMinDefectArea_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
         m_vMinDefectDiag_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
+
+        //中心区center 第二次拍照
+        m_vMinDefectProb_C_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_C");
+        m_vMinDefectArea_C_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_C");
+        m_vMinDefectDiag_C_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_C");
+        //非中心区not center
+        m_vMinDefectProb_NC_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_NC");
+        m_vMinDefectArea_NC_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_NC");
+        m_vMinDefectDiag_NC_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_NC");
 
         // m_tensortRtInfer = make_shared<xj::TensorrtEngineBase>();
         m_tensorrtYoloDL = make_shared<YoloClassifier>(model_path, YoloOutputType::DETECTION, m_maxBatchSize, numCategory, inputWidth, inputHeight, inputChannel);
@@ -244,8 +253,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     // 红光暗场屏蔽区域
     if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
     {
-        const int radius_is = 2400 / 2.6;
-        int radius3 = 900; 
+        const int radius_is = m_wuxingWidth / 2.7;
         cv::Mat mask3 = cv::Mat::ones(resultImage.rows, resultImage.cols, CV_8UC1);  //CV_8UC1：8位单通道图像
         cv::circle(mask3, Point(resultImage.cols / 2, resultImage.rows / 2), radius_is, cv::Scalar(0), -1);
         cv::Mat dst;
@@ -340,13 +348,13 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box_origin, Rect &box, const
     int resize_scale = m_wuxingWidth / 242;
     cout << " m_wuxingWidth " << m_wuxingWidth << resize_scale << endl;
     resize(roiImage, resizeImg, Size(roiImage.cols / resize_scale, roiImage.rows / resize_scale));
-    Mat grayImage, binaryImage, bilater;
+    Mat grayImage, binaryImage, bilater, edges;
     vector<Mat> channels;
     split(resizeImg, channels);
     if(m_stParamsA.boardId == 0)
     {
         bilateralFilter(channels[2], bilater, 3, 3, 3);
-        Canny(bilater, binaryImage, 60, 200);
+        Canny(bilater, edges, 60, 200);
     }else
     {
         if (nCaptureTimes == 1)
@@ -354,25 +362,24 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box_origin, Rect &box, const
             int lowthre = m_stParamsB.vecFParams.at("CANNYTHRE")[0];
             int highthre = m_stParamsB.vecFParams.at("CANNYTHRE")[1];
             bilateralFilter(channels[0], bilater, 3, 3, 3);
-            Canny(bilater, binaryImage, lowthre, highthre);
+            Canny(bilater, edges, lowthre, highthre);
         }else
         {
             cvtColor(resizeImg, grayImage, COLOR_RGB2GRAY);
             if(m_stParamsB.fParams.at("IS_DEBUG"))
             {imwrite("/opt/app/test/grayImage.png", grayImage);}
             bilateralFilter(grayImage, bilater, 3, 3, 3);
-            if(m_stParamsB.fParams.at("IS_DEBUG"))
-            {imwrite("/opt/app/test/bilater.png", bilater);}
-            Canny(bilater, binaryImage, 10, 80);
-            if(m_stParamsB.fParams.at("IS_DEBUG"))
-            {imwrite("/opt/app/test/Canny.png", binaryImage);}
+            Canny(bilater, edges, 10, 80);
         }   
-    }
-    
+    }    
     Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
-    morphologyEx(binaryImage, binaryImage, MORPH_CLOSE, kernel);
+    morphologyEx(edges, binaryImage, MORPH_CLOSE, kernel);    
     if(m_stParamsB.fParams.at("IS_DEBUG"))
-    {imwrite("/opt/app/test/binaryImage.png", binaryImage);}
+    {
+        imwrite("/opt/app/test/bilater.png", bilater);
+        imwrite("/opt/app/test/Canny.png", edges);
+        imwrite("/opt/app/test/binaryImage.png", binaryImage);
+    }
 
     //test houghcirle
     // Hough_Circle(grayImage);
@@ -625,28 +632,31 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
 
             float centerX = box.x + box.width/2;    
             float centerY = box.y + box.height/2;
-            //计算产品中心到瑕疵中心的距离，与radius1比较大小，由此判断调用松/紧参数
+            //计算产品中心到瑕疵中心的距离: 1、取扣图边缘和扩展之后边缘的中心来比较，判断瑕疵是不是在边缘  2、与设定的中心区比较，调用松/紧参数
             float d_defect2center = std::sqrt((centerX-roiImage.cols/2)*(centerX-roiImage.cols/2) + (centerY-roiImage.rows/2)*(centerY-roiImage.rows/2));
             if (d_defect2center > (m_product_diameter + roiImage.cols) / 4 && whiteArea < 10){    //如果检测到的瑕疵的中心点在背景区（防止模型异常或早期的训练数据影响）
                 cout << "放过背景上的瑕疵" << endl;
                 continue;
             }
-            if (d_defect2center <= m_productCentre){
+            if (d_defect2center <= m_productCentre && nCaptureTimes == 1){
                 m_vMinDefectArea = m_vMinDefectArea_C_pic1;
                 m_vMinDefectProb = m_vMinDefectProb_C_pic1;
                 m_vMinDefectDiag = m_vMinDefectDiag_C_pic1;
             }
-            if (d_defect2center > m_productCentre){
+            if (d_defect2center > m_productCentre && nCaptureTimes == 1){
                 m_vMinDefectArea = m_vMinDefectArea_NC_pic1;
                 m_vMinDefectProb = m_vMinDefectProb_NC_pic1;
                 m_vMinDefectDiag = m_vMinDefectDiag_NC_pic1;
             }
-            if (nCaptureTimes == 2 && m_stParamsA.boardId == 0)
-            {
-                //非中心区not center
-                m_vMinDefectProb = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
-                m_vMinDefectArea = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
-                m_vMinDefectDiag = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
+            if (d_defect2center <= m_productCentre && nCaptureTimes != 1){
+                m_vMinDefectArea = m_vMinDefectArea_C_pic2;
+                m_vMinDefectProb = m_vMinDefectProb_C_pic2;
+                m_vMinDefectDiag = m_vMinDefectDiag_C_pic2;
+            }
+            if (d_defect2center > m_productCentre && nCaptureTimes != 1){
+                m_vMinDefectArea = m_vMinDefectArea_NC_pic2;
+                m_vMinDefectProb = m_vMinDefectProb_NC_pic2;
+                m_vMinDefectDiag = m_vMinDefectDiag_NC_pic2;
             }
 
             // 瑕疵：后处理判断 OK/NG

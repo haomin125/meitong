@@ -446,6 +446,12 @@ bool XJAppServer::runDetector(const int boardId)
 		// 	std::this_thread::sleep_for(std::chrono::milliseconds(timeInterval + 1000));
 		// }
 
+		// m_pDetectors[boardId].m_pDetector->setCaptueImageTimesBySignal();	
+		// if(m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() == (int)CaptureImageTimes::UNKNOWN_TIMES)
+		// {
+		// 	return true;
+		// }
+
 		//////////////////////////// STEP1: get next image ////////////////////////////
 		// product count will be increased if get next frame sucessfully, to make log//
 		// consistant, we add 1 here instead                                         //
@@ -457,8 +463,7 @@ bool XJAppServer::runDetector(const int boardId)
 			return false;
 		}
 		//set capture image times in detector
-		// m_pDetectors[boardId].m_pDetector->setCaptueImageTimesByProductCount();
-		m_pDetectors[boardId].m_pDetector->setCaptueImageTimesBySignal();	
+		m_pDetectors[boardId].m_pDetector->setCaptueImageTimesByProductCount();
 		const double t1 = m_vTimer[boardId]->elapsed();
 		LogDEBUG << "extern: Board[" << boardId << "] Time" << m_pDetectors[boardId].m_pDetector->getCaptureImageTimes() << " : get image time cost " << t1  << " seconds";
 		m_pDetectors[boardId].m_pDetector->updateProductCountofWorkflow();

@@ -87,6 +87,12 @@ private:
     std::vector<float> m_vMinDefectProb_NC_pic1;
     std::vector<float> m_vMinDefectArea_NC_pic1;
     std::vector<float> m_vMinDefectDiag_NC_pic1;
+    std::vector<float> m_vMinDefectProb_C_pic2;
+    std::vector<float> m_vMinDefectArea_C_pic2;
+    std::vector<float> m_vMinDefectDiag_C_pic2;
+    std::vector<float> m_vMinDefectProb_NC_pic2;
+    std::vector<float> m_vMinDefectArea_NC_pic2;
+    std::vector<float> m_vMinDefectDiag_NC_pic2;
     std::vector<float> m_vDisableDefectType;
 
     float m_neituoHeight;

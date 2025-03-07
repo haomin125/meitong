@@ -355,6 +355,15 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box_origin, Rect &box, const
     {
         bilateralFilter(channels[2], bilater, 3, 3, 3);
         Canny(bilater, edges, 60, 200);
+        if (nCaptureTimes == 1)
+        {
+            Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
+            morphologyEx(edges, binaryImage, MORPH_CLOSE, kernel);  
+        }else
+        {
+            Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
+            morphologyEx(edges, binaryImage, MORPH_CLOSE, kernel);  
+        }
     }else
     {
         if (nCaptureTimes == 1)
@@ -371,9 +380,9 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box_origin, Rect &box, const
             bilateralFilter(grayImage, bilater, 3, 3, 3);
             Canny(bilater, edges, 10, 80);
         }   
+        Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
+        morphologyEx(edges, binaryImage, MORPH_CLOSE, kernel);  
     }    
-    Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
-    morphologyEx(edges, binaryImage, MORPH_CLOSE, kernel);    
     if(m_stParamsB.fParams.at("IS_DEBUG"))
     {
         imwrite("/opt/app/test/bilater.png", bilater);

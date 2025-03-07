@@ -13,7 +13,9 @@
                     "defect7",
                     "defect8",
                     "defect9",
-                    "defect10"
+                    "defect10",
+                    "defect11",
+                    "defect12"
                 ],
                 [
                     "defect1",
@@ -25,7 +27,9 @@
                     "defect7",
                     "defect8",
                     "defect9",
-                    "defect10"
+                    "defect10",
+                    "defect11",
+                    "defect12"
                 ]
             
             ],
@@ -320,6 +324,20 @@
                                     "id":"other",
                                     "name":"other",
                                     "showType": "switch"
+                                },
+                                {
+                                    "index": 310,
+                                    "isRecordToDB": false,
+                                    "id":"yiyinpianyi",
+                                    "name":"移印偏移",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 311,
+                                    "isRecordToDB": false,
+                                    "id":"yiyinwaita",
+                                    "name":"移印外塌",
+                                    "showType": "switch"
                                 }
                             ]
                         }
@@ -407,6 +425,20 @@
                                     "id":"other",
                                     "name":"other",
                                     "showType": "switch"
+                                },
+                                {
+                                    "index": 360,
+                                    "isRecordToDB": false,
+                                    "id":"yiyinpianyi",
+                                    "name":"移印偏移",
+                                    "showType": "switch"
+                                },
+                                {
+                                    "index": 361,
+                                    "isRecordToDB": false,
+                                    "id":"yiyinwaita",
+                                    "name":"移印外塌",
+                                    "showType": "switch"
                                 }
                             ]
                         }
@@ -430,6 +462,8 @@
                         "defect8": "边缘变形",
                         "defect9": "缺漏",
 						"defect10": "other",
+                        "defect11": "移印偏移",
+						"defect12": "移印外塌",
                         "workStation1": "第1个工位",
                         "workStation2": "第2个工位",
                         "workstation-1": "工位1",
@@ -458,6 +492,8 @@
                         "defect8": "edge deformation",
                         "defect9": "omissions",
                         "defect10": "other",
+                        "defect11": "print offset",
+                        "defect12": "print depression",
                         "workStation1": "1st Station",
                         "workStation2": "2st Station"
                     }
@@ -495,7 +531,7 @@
 
     "IS_USE_MES_SYSTEM": false,
     "IS_USE_IO_CARD": false,
-    "IS_DUBEG_SIGNAL": true,
+    "IS_DUBEG_SIGNAL": false,
     "IO_CARD_DEVICE_NAME": "PCI-1730",
     "IO_CARD_SIGNAL_TIME_MS": 20,
     "IO_CARD_HEART_BEAT_BIT_ADDRESS": 2,
@@ -529,12 +565,12 @@
     "CAMERA_TIMEOUT": [8000, 8000],
     "CAMERA_IMAGE_WIDTH":  [3500, 3500],
     "CAMERA_IMAGE_HEIGHT": [3500, 3500],
-    "CAMERA_OFFSET_X": [1596, 532],
-    "CAMERA_OFFSET_Y": [1480, 1000],
+    "CAMERA_OFFSET_X": [1332, 532],
+    "CAMERA_OFFSET_Y": [1204, 1000],
     "CAMERA_FPS": [10, 10],
     "CAMERA_EXPOSURE": [1212, 130],
     "CAMERA_EXPOSURE_FIRST": [2000, 1400],
-    "CAMERA_EXPOSURE_SECOND":[8000, 8000],
+    "CAMERA_EXPOSURE_SECOND":[8000, 15000],
     "CAMERA_GAMMA": [1, 1],
     "CAMERA_GAIN":  [8, 0],
     "CAMERA_GAIN_FRIST":  [8, 8],
@@ -607,33 +643,33 @@
         "LVBO": [3],
         "CANNYTHRE": [100, 230],
         
-        "DEFECT_MIN_AREA_CAM1_PIC1_C": [12,11,11,50,20,23,2,8,5,0],
-        "DEFECT_MIN_DIAG_CAM1_PIC1_C": [12,3,2,11,4,3,10,3,2,0],
+        "DEFECT_MIN_AREA_CAM1_PIC1_C": [12,11,11,50,20,23,75,8,5,0],
+        "DEFECT_MIN_DIAG_CAM1_PIC1_C": [12,3,2,11,4,3,10,3,10,0],
         "DEFECT_MIN_PROB_CAM1_PIC1_C": [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
-        "DEFECT_MIN_AREA_CAM1_PIC1_NC": [20,2222,33,33,20,231,23,3,3,0],
-        "DEFECT_MIN_DIAG_CAM1_PIC1_NC": [20,22,11,21,4,10,3,2,2,0],
-        "DEFECT_MIN_PROB_CAM1_PIC1_NC": [0.8,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
+        "DEFECT_MIN_AREA_CAM1_PIC1_NC": [500,2222,33,33,20,231,23,3,3,0],
+        "DEFECT_MIN_DIAG_CAM1_PIC1_NC": [35,22,11,21,4,10,3,2,2,0],
+        "DEFECT_MIN_PROB_CAM1_PIC1_NC": [0.79,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
 
-        "DEFECT_MIN_AREA_CAM1_PIC2_C": [20,2222,33,33,20,231,23,3,3,0],
+        "DEFECT_MIN_AREA_CAM1_PIC2_C": [1000,2222,33,33,20,231,23,3,3,0],
         "DEFECT_MIN_DIAG_CAM1_PIC2_C": [20,22,11,21,4,10,3,2,2,0],
         "DEFECT_MIN_PROB_CAM1_PIC2_C": [0.85,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
-        "DEFECT_MIN_AREA_CAM1_PIC2_NC": [20,2222,33,33,20,231,23,3,3,0],
+        "DEFECT_MIN_AREA_CAM1_PIC2_NC": [1000,2222,33,33,20,231,23,3,3,0],
         "DEFECT_MIN_DIAG_CAM1_PIC2_NC": [20,22,11,21,4,10,3,2,2,0],
         "DEFECT_MIN_PROB_CAM1_PIC2_NC": [0.85,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
 
         "DEFECT_MIN_AREA_CAM2_PIC1_C": [11,11,11,50,20,23,2,8,5,0],
         "DEFECT_MIN_DIAG_CAM2_PIC1_C": [11,3,2,11,4,3,2,3,2,0],
         "DEFECT_MIN_PROB_CAM2_PIC1_C": [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
-        "DEFECT_MIN_AREA_CAM2_PIC1_NC": [20,2222,33,33,20,231,23,3,3,0],
-        "DEFECT_MIN_DIAG_CAM2_PIC1_NC": [20,22,11,21,4,6,3,2,2,0],
-        "DEFECT_MIN_PROB_CAM2_PIC1_NC": [0.8,0.6,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
+        "DEFECT_MIN_AREA_CAM2_PIC1_NC": [500,2222,33,33,20,231,23,3,3,0],
+        "DEFECT_MIN_DIAG_CAM2_PIC1_NC": [35,22,11,21,4,6,3,2,2,0],
+        "DEFECT_MIN_PROB_CAM2_PIC1_NC": [0.79,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
 
         "DEFECT_MIN_AREA_CAM2_PIC2_C": [11,11,11,50,20,23,2,8,5,0],
         "DEFECT_MIN_DIAG_CAM2_PIC2_C": [11,3,2,11,4,3,2,3,2,0],
         "DEFECT_MIN_PROB_CAM2_PIC2_C": [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
-        "DEFECT_MIN_AREA_CAM2_PIC2_NC": [20,2222,33,33,20,231,23,3,3,0],
-        "DEFECT_MIN_DIAG_CAM2_PIC2_NC": [20,22,11,21,4,6,3,2,2,0],
-        "DEFECT_MIN_PROB_CAM2_PIC2_NC": [0.8,0.6,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
+        "DEFECT_MIN_AREA_CAM2_PIC2_NC": [500,2222,33,33,20,231,23,3,3,0],
+        "DEFECT_MIN_DIAG_CAM2_PIC2_NC": [35,22,11,21,4,6,3,2,2,0],
+        "DEFECT_MIN_PROB_CAM2_PIC2_NC": [0.79,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
 
         "ROI_OFFSET_X": [0, 0],
         "ROI_OFFSET_Y": [0, 0],
@@ -652,8 +688,8 @@
     },
 
     "PRIVATED_ALGORITHM_STRING_PARAMS_CONFIG":{
-        "MODEL_PATH_CAM1":"./models/best_1227.engine",
-        "MODEL_PATH_CAM2":"./models/best_1227.engine",
+        "MODEL_PATH_CAM1":"./models/best_0105.engine",
+        "MODEL_PATH_CAM2":"./models/best_0105.engine",
         "IPU": "MEITONG",
 
         "LOGO_IMAGE_PATH": "./template/tiangai/3.png"

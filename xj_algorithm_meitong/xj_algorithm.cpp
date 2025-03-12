@@ -141,6 +141,10 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
         m_vMinDefectProb_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
         m_vMinDefectArea_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
         m_vMinDefectDiag_NC_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_NC");
+        //边缘区
+        m_vMinDefectProb_E_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_E");
+        m_vMinDefectArea_E_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_E");
+        m_vMinDefectDiag_E_pic1 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC1_E");
 
         //中心区center 第二次拍照
         m_vMinDefectProb_C_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_C");
@@ -150,6 +154,10 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
         m_vMinDefectProb_NC_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_NC");
         m_vMinDefectArea_NC_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_NC");
         m_vMinDefectDiag_NC_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_NC");
+        //边缘区
+        m_vMinDefectProb_E_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_PROB_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_E");
+        m_vMinDefectArea_E_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_AREA_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_E");
+        m_vMinDefectDiag_E_pic2 = m_stParamsB.vecFParams.at("DEFECT_MIN_DIAG_CAM" + to_string(m_stParamsA.boardId + 1) + "_PIC2_E");
 
         // m_tensortRtInfer = make_shared<xj::TensorrtEngineBase>();
         m_tensorrtYoloDL = make_shared<YoloClassifier>(model_path, YoloOutputType::DETECTION, m_maxBatchSize, numCategory, inputWidth, inputHeight, inputChannel);
@@ -245,6 +253,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     Mat roiImage = image(roiRect);
     m_product_diameter = roi_origin.width > roi_origin.height ? roi_origin.width : roi_origin.height;
     m_productCentre = m_product_diameter / 5.7; //中心区420
+    m_productEdge = m_product_diameter / 2.2; //边缘区1130
 
     //step2: 屏蔽背景区域
     Mat resultImage;
@@ -308,8 +317,9 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
             }
         }
     }  
-    //在UI显示，可视化区分中心区/非中心区
-    cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productCentre, Scalar(0, 255, 0), 2, cv::LINE_8);
+    //在UI显示，可视化区分中心区/非中心区/边缘区
+    cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productCentre, Scalar(255, 0, 255), 3, cv::LINE_8);
+    cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productEdge, Scalar(255, 0, 255), 3, cv::LINE_8);
 
     const double t4 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : detectByDL time cost " << t4 << " seconds" << endl;
@@ -554,7 +564,7 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
     vector<Rect> roiRect_;
     vector<vector<YoloOutputDetect>> detectionOutput;
     targetImage = preprocessImage(targetImage);
-    // targetImage = imread("test.png");   //测试小图
+    // targetImage = imread("/opt/image/0306/meitong_wujian/ming/test.png");   //测试小图
     images.push_back(targetImage);
     roiRect_.push_back(roiRect);
     
@@ -618,6 +628,11 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
 			box.width = int(detectionOutput.at(j).at(i).box.width);
 			box.height = int(detectionOutput.at(j).at(i).box.height);
 
+            // //测试小图
+            // Mat ceshi_xiaotu = targetImage.clone();
+            // rectangle(ceshi_xiaotu, detectionOutput.at(j).at(i).box, Scalar(0,255,255), 5, 8);
+            // imwrite("/opt/app/test/ceshi_xiaotu.png", ceshi_xiaotu);
+
 			//tempS = box.width*box.width*m_fPPS*m_fPPS + box.height*box.height*m_fPPS*m_fPPS;    //转化为物理尺寸的对角线平方
             //tempS = box.width*m_fPPS*box.height*m_fPPS;    //物理尺寸的面积
             tempS = box.area();
@@ -641,31 +656,47 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
 
             float centerX = box.x + box.width/2;    
             float centerY = box.y + box.height/2;
-            //计算产品中心到瑕疵中心的距离: 1、取扣图边缘和扩展之后边缘的中心来比较，判断瑕疵是不是在边缘  2、与设定的中心区比较，调用松/紧参数
+            //计算产品中心到瑕疵中心的距离: 1、取扣图边缘和扩展之后边缘的中心来比较，判断瑕疵是不是在背景  2、与设定的中心区比较，调用松/紧参数
             float d_defect2center = std::sqrt((centerX-roiImage.cols/2)*(centerX-roiImage.cols/2) + (centerY-roiImage.rows/2)*(centerY-roiImage.rows/2));
             if (d_defect2center > (m_product_diameter + roiImage.cols) / 4 && whiteArea < 10){    //如果检测到的瑕疵的中心点在背景区（防止模型异常或早期的训练数据影响）
                 cout << "放过背景上的瑕疵" << endl;
                 continue;
             }
-            if (d_defect2center <= m_productCentre && nCaptureTimes == 1){
-                m_vMinDefectArea = m_vMinDefectArea_C_pic1;
-                m_vMinDefectProb = m_vMinDefectProb_C_pic1;
-                m_vMinDefectDiag = m_vMinDefectDiag_C_pic1;
+            if (nCaptureTimes == 1)
+            {
+                if(d_defect2center <= m_productCentre){
+                    m_vMinDefectArea = m_vMinDefectArea_C_pic1;
+                    m_vMinDefectProb = m_vMinDefectProb_C_pic1;
+                    m_vMinDefectDiag = m_vMinDefectDiag_C_pic1;
+                }
+                else if(m_productEdge > d_defect2center > m_productCentre){
+                    m_vMinDefectArea = m_vMinDefectArea_NC_pic1;
+                    m_vMinDefectProb = m_vMinDefectProb_NC_pic1;
+                    m_vMinDefectDiag = m_vMinDefectDiag_NC_pic1;
+                }
+                else{
+                    m_vMinDefectArea = m_vMinDefectArea_E_pic1;
+                    m_vMinDefectProb = m_vMinDefectProb_E_pic1;
+                    m_vMinDefectDiag = m_vMinDefectDiag_E_pic1;
+                }
             }
-            if (d_defect2center > m_productCentre && nCaptureTimes == 1){
-                m_vMinDefectArea = m_vMinDefectArea_NC_pic1;
-                m_vMinDefectProb = m_vMinDefectProb_NC_pic1;
-                m_vMinDefectDiag = m_vMinDefectDiag_NC_pic1;
-            }
-            if (d_defect2center <= m_productCentre && nCaptureTimes != 1){
-                m_vMinDefectArea = m_vMinDefectArea_C_pic2;
-                m_vMinDefectProb = m_vMinDefectProb_C_pic2;
-                m_vMinDefectDiag = m_vMinDefectDiag_C_pic2;
-            }
-            if (d_defect2center > m_productCentre && nCaptureTimes != 1){
-                m_vMinDefectArea = m_vMinDefectArea_NC_pic2;
-                m_vMinDefectProb = m_vMinDefectProb_NC_pic2;
-                m_vMinDefectDiag = m_vMinDefectDiag_NC_pic2;
+            else
+            {
+                if (d_defect2center <= m_productCentre){
+                    m_vMinDefectArea = m_vMinDefectArea_C_pic2;
+                    m_vMinDefectProb = m_vMinDefectProb_C_pic2;
+                    m_vMinDefectDiag = m_vMinDefectDiag_C_pic2;
+                }
+                else if(m_productEdge > d_defect2center > m_productCentre){
+                    m_vMinDefectArea = m_vMinDefectArea_NC_pic2;
+                    m_vMinDefectProb = m_vMinDefectProb_NC_pic2;
+                    m_vMinDefectDiag = m_vMinDefectDiag_NC_pic2;
+                }
+                else{
+                    m_vMinDefectArea = m_vMinDefectArea_E_pic2;
+                    m_vMinDefectProb = m_vMinDefectProb_E_pic2;
+                    m_vMinDefectDiag = m_vMinDefectDiag_E_pic2;
+                }               
             }
 
             // 瑕疵：后处理判断 OK/NG
@@ -700,7 +731,7 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
                 {
                     boxesYiwudian.push_back(box);
                 }
-                break;            
+                break;
             default:
                 break;
             }

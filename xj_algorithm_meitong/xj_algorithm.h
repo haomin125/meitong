@@ -87,12 +87,18 @@ private:
     std::vector<float> m_vMinDefectProb_NC_pic1;
     std::vector<float> m_vMinDefectArea_NC_pic1;
     std::vector<float> m_vMinDefectDiag_NC_pic1;
+    std::vector<float> m_vMinDefectProb_E_pic1;
+    std::vector<float> m_vMinDefectArea_E_pic1;
+    std::vector<float> m_vMinDefectDiag_E_pic1;
     std::vector<float> m_vMinDefectProb_C_pic2;
     std::vector<float> m_vMinDefectArea_C_pic2;
     std::vector<float> m_vMinDefectDiag_C_pic2;
     std::vector<float> m_vMinDefectProb_NC_pic2;
     std::vector<float> m_vMinDefectArea_NC_pic2;
     std::vector<float> m_vMinDefectDiag_NC_pic2;
+    std::vector<float> m_vMinDefectProb_E_pic2;
+    std::vector<float> m_vMinDefectArea_E_pic2;
+    std::vector<float> m_vMinDefectDiag_E_pic2;
     std::vector<float> m_vDisableDefectType;
 
     float m_neituoHeight;
@@ -108,6 +114,7 @@ private:
     int m_wuxingWidthOffset;
     int m_wuxingHeightOffset;
     int m_productCentre; // 中心区
+    int m_productEdge; // 边缘区
     int m_product_diameter; // 扣图ROI
 
     //UI params

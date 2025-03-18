@@ -387,7 +387,7 @@ bool XJAlgorithm::locateBox(const Mat& image, Rect &box_origin, Rect &box, const
             cvtColor(resizeImg, grayImage, COLOR_RGB2GRAY);
             if(m_stParamsB.fParams.at("IS_DEBUG"))
             {imwrite("/opt/app/test/grayImage.png", grayImage);}
-            bilateralFilter(grayImage, bilater, 3, 3, 3);
+            bilateralFilter(channels[1], bilater, 5, 5, 5);
             Canny(bilater, edges, 10, 80);
         }   
         Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
@@ -669,7 +669,7 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
                     m_vMinDefectProb = m_vMinDefectProb_C_pic1;
                     m_vMinDefectDiag = m_vMinDefectDiag_C_pic1;
                 }
-                else if(m_productEdge > d_defect2center > m_productCentre){
+                else if(m_productEdge > d_defect2center && d_defect2center > m_productCentre){
                     m_vMinDefectArea = m_vMinDefectArea_NC_pic1;
                     m_vMinDefectProb = m_vMinDefectProb_NC_pic1;
                     m_vMinDefectDiag = m_vMinDefectDiag_NC_pic1;
@@ -687,7 +687,7 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
                     m_vMinDefectProb = m_vMinDefectProb_C_pic2;
                     m_vMinDefectDiag = m_vMinDefectDiag_C_pic2;
                 }
-                else if(m_productEdge > d_defect2center > m_productCentre){
+                else if(m_productEdge > d_defect2center && d_defect2center > m_productCentre){
                     m_vMinDefectArea = m_vMinDefectArea_NC_pic2;
                     m_vMinDefectProb = m_vMinDefectProb_NC_pic2;
                     m_vMinDefectDiag = m_vMinDefectDiag_NC_pic2;
@@ -711,10 +711,10 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
                 continue;
             }
             
-            //TO DO 2: 对角线、长宽、面积之间的模糊关系？
+            //TO DO 2: 对角线、长宽、面积之间的模糊关系？ 
             switch (objectId + 2)
             {
-            case DefectType::defect2:
+            case DefectType::defect2: 
                 if (diagL > 5 && confidences >= m_vMinDefectProb[objectId])
                 {
                     boxesXianshang.push_back(box);
@@ -737,52 +737,52 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
             }
 		}
         
-        //检测线伤：线图上线伤累积面积和对角线
-        if (!detectXianShang(boxesXianshang, m_vMinDefectArea, m_vMinDefectDiag, objectId))
-        {
-            for (int i = 0; i < boxesXianshang.size(); i++)
-            {
-                Scalar scalar = Scalar(0,255,255);
-                result = (int)DefectType::defect2;
-                defectResult[0].emplace_back(result);
-                rectangle(roiImage, boxesXianshang[i], scalar, 5, 8);     
-                processedImage = roiImage.clone();
-                continue;
-            }
-        }
+        //检测线伤：线图上线伤累积面积和对角线， 计算累加值，只要面积或对角线其中一个符合就判NG（要有两个以上瑕疵才能用，不然一个会和上面冲突）
+        // if (!detectXianShang(boxesXianshang, m_vMinDefectArea, m_vMinDefectDiag, objectId))
+        // {
+        //     for (int i = 0; i < boxesXianshang.size(); i++)
+        //     {
+        //         Scalar scalar = Scalar(0,255,255);
+        //         result = (int)DefectType::defect2;
+        //         defectResult[0].emplace_back(result);
+        //         rectangle(roiImage, boxesXianshang[i], scalar, 5, 8);     
+        //         processedImage = roiImage.clone();
+        //         continue;
+        //     }
+        // }
         //检测点伤：
-        if (!detectDianShang(boxesDianshang, m_vMinDefectArea, m_vMinDefectDiag, objectId))
-        {
-            for (int i = 0; i < boxesDianshang.size(); i++)
-            {
-                Scalar scalar = Scalar(0,255,255);
-                result = (int)DefectType::defect3;
-                defectResult[0].emplace_back(result);
-                rectangle(roiImage, boxesDianshang[i], scalar, 5, 8);
-                processedImage = roiImage.clone();
-                continue;
-            }
-        }
+        // if (!detectDianShang(boxesDianshang, m_vMinDefectArea, m_vMinDefectDiag, objectId))
+        // {
+        //     for (int i = 0; i < boxesDianshang.size(); i++)
+        //     {
+        //         Scalar scalar = Scalar(0,255,255);
+        //         result = (int)DefectType::defect3;
+        //         defectResult[0].emplace_back(result);
+        //         rectangle(roiImage, boxesDianshang[i], scalar, 5, 8);
+        //         processedImage = roiImage.clone();
+        //         continue;
+        //     }
+        // }
         //检测异物点：
-        if (!detectYiWuDian(boxesYiwudian, m_vMinDefectArea, m_vMinDefectDiag, objectId))
-        {
-            for (int i = 0; i < boxesYiwudian.size(); i++)
-            {
-                Scalar scalar = Scalar(0,255,255);
-                result = (int)DefectType::defect3;
-                defectResult[0].emplace_back(result);
-                rectangle(roiImage, boxesYiwudian[i], scalar, 5, 8);
-                processedImage = roiImage.clone();
-                continue;
-            }
-        }
+        // if (!detectYiWuDian(boxesYiwudian, m_vMinDefectArea, m_vMinDefectDiag, objectId))
+        // {
+        //     for (int i = 0; i < boxesYiwudian.size(); i++)
+        //     {
+        //         Scalar scalar = Scalar(0,255,255);
+        //         result = (int)DefectType::defect3;
+        //         defectResult[0].emplace_back(result);
+        //         rectangle(roiImage, boxesYiwudian[i], scalar, 5, 8);
+        //         processedImage = roiImage.clone();
+        //         continue;
+        //     }
+        // }
 	}
     return true;
 }
 
 bool XJAlgorithm::detectXianShang(const std::vector<cv::Rect> &boxesXianshang, const std::vector<float> area, const std::vector<float> diag, const int objectId)
 {
-    if (boxesXianshang.size() > 0)
+    if (boxesXianshang.size() > 1)
     {
         float totalArea = 0;
         float totalDiag = 0;
@@ -804,7 +804,7 @@ bool XJAlgorithm::detectXianShang(const std::vector<cv::Rect> &boxesXianshang, c
 
 bool XJAlgorithm::detectDianShang(const std::vector<cv::Rect> &boxesDianshang, const std::vector<float> area, const std::vector<float> diag, const int objectId)
 {
-    if (boxesDianshang.size() > 0)
+    if (boxesDianshang.size() > 1)
     {
         float totalArea = 0;
         float totalDiag = 0;
@@ -826,7 +826,7 @@ bool XJAlgorithm::detectDianShang(const std::vector<cv::Rect> &boxesDianshang, c
 
 bool XJAlgorithm::detectYiWuDian(const std::vector<cv::Rect> &boxesYiwudian, const std::vector<float> area, const std::vector<float> diag, const int objectId)
 {
-    if (boxesYiwudian.size() > 0)
+    if (boxesYiwudian.size() > 1)
     {
         float totalArea = 0;
         float totalDiag = 0;

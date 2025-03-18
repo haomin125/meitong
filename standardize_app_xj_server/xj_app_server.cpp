@@ -944,6 +944,8 @@ void XJAppServer::checkHeartBeat()
 	const int signal_change_interval_ms = CustomizedJsonConfig::instance().get<int>("HEART_BEAT_SIGNAL_TIME_INTERVAL_MS");
 	const int iBit = CustomizedJsonConfig::instance().get<int>("IO_CARD_HEART_BEAT_BIT_ADDRESS");
 	const int iAddress = CustomizedJsonConfig::instance().get<int>("PLC_MODBUS_TCP_HEART_BEAT_ADDRESS");
+	const int total_num = CustomizedJsonConfig::instance().get<int>("PLC_MODBUS_TCP_TOTAL_NUM_COUNT_ADDRESS");
+	const int total_defect_num = CustomizedJsonConfig::instance().get<int>("PLC_MODBUS_TCP_TOTAL_DEFECT_COUNT_ADDRESS");
 
 	int iSignalIndex = 0;
 	DetectorRunStatus runStatus;
@@ -979,6 +981,13 @@ void XJAppServer::checkHeartBeat()
 			{
 				dynamic_pointer_cast<AppIoManagerPLC>(m_pIoManager)->writeRegister(iAddress, data);					
 				LogINFO << "send heart beat data:" << data << " to PLC register address:" << iAddress;		
+
+				//读取PLC计数结果并发送到UI
+				int total_num_data, total_defect_num_data;
+				dynamic_pointer_cast<AppIoManagerPLC>(m_pIoManager)->readRegister(total_num, total_num_data);	
+				dynamic_pointer_cast<AppIoManagerPLC>(m_pIoManager)->readRegister(total_defect_num, total_defect_num_data);
+				RunningInfo::instance().GetRunningData().setCustomerDataByName("totalNum", to_string(total_num_data));
+				RunningInfo::instance().GetRunningData().setCustomerDataByName("totalDefect", to_string(total_defect_num_data));	
 			}
 		}
 	}

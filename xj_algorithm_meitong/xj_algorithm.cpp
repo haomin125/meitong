@@ -279,7 +279,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         cout << "ERROR extractROI" << endl; 
         result = (int)DefectType::defect1;
         defectResult[0].emplace_back(result);
-        imwrite("/opt/app/test/extractROI.png", roiImage);
+        imwrite("/opt/app/test/extractROI.png", resultImage);
         return defectResult;
     }
    
@@ -287,6 +287,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : extractROI time cost " << t3 << " seconds" << endl;
     m_timer.reset();
     //step4: get detect result by DL
+    processedImage = resultImage.clone();
     for (int i = 0; i < vTargetImage.size(); i++)   // 
     {
         result = (int)DefectType::good;
@@ -555,10 +556,8 @@ Mat XJAlgorithm::preprocessImage(const Mat &roiImage)
     return targetImage;
 }
 
-// bool XJAlgorithm::detectByDL(Mat &roiImage, const Rect &roiRect, Mat &targetImage, int &result, vector<vector<int>> &defectResult, Mat &processedImage)
-bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_ResultIdName, const int nCaptureTimes)
+bool XJAlgorithm::detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_ResultIdName, const int nCaptureTimes)
 {
-    processedImage = roiImage.clone();
     //step1:pre-process
     vector<Mat> images;
     vector<Rect> roiRect_;
@@ -594,7 +593,7 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
     // }
     
     // step3:post-process
-    // float scale = std::max(roiImage.rows, roiImage.cols) / (float)TARGET_SIZE;  //归一化系数
+    // float scale = std::max(resultImage.rows, resultImage.cols) / (float)TARGET_SIZE;  //归一化系数
 	// cout<<"detectionOutput.size():  "<< detectionOutput.size() <<endl;
     // 单张小图训练，只循环一次
     for	(int j=0; j<detectionOutput.size(); j++) {
@@ -643,9 +642,9 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
 
             //防止边缘附近的背景上的瑕疵误检
             //定义一个空的掩膜图，对应ROI区
-            cv::Mat mask3 = cv::Mat::zeros(roiImage.rows, roiImage.cols, CV_8UC1);
+            cv::Mat mask3 = cv::Mat::zeros(resultImage.rows, resultImage.cols, CV_8UC1);
             cv::Mat mask4 = mask3.clone();
-            cv::circle(mask3, Point(roiImage.cols / 2, roiImage.rows / 2), m_product_diameter / 2, cv::Scalar(255), -1);
+            cv::circle(mask3, Point(resultImage.cols / 2, resultImage.rows / 2), m_product_diameter / 2, cv::Scalar(255), -1);
             //对每个检测到的瑕疵定义一个掩膜图
             cv::Rect roi(box.x, box.y, box.width, box.height);
             cv::rectangle(mask4, roi, cv::Scalar(255), -1);
@@ -657,8 +656,8 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
             float centerX = box.x + box.width/2;    
             float centerY = box.y + box.height/2;
             //计算产品中心到瑕疵中心的距离: 1、取扣图边缘和扩展之后边缘的中心来比较，判断瑕疵是不是在背景  2、与设定的中心区比较，调用松/紧参数
-            float d_defect2center = std::sqrt((centerX-roiImage.cols/2)*(centerX-roiImage.cols/2) + (centerY-roiImage.rows/2)*(centerY-roiImage.rows/2));
-            if (d_defect2center > (m_product_diameter + roiImage.cols) / 4 && whiteArea < 10){    //如果检测到的瑕疵的中心点在背景区（防止模型异常或早期的训练数据影响）
+            float d_defect2center = std::sqrt((centerX-resultImage.cols/2)*(centerX-resultImage.cols/2) + (centerY-resultImage.rows/2)*(centerY-resultImage.rows/2));
+            if (d_defect2center > (m_product_diameter + resultImage.cols) / 4 && whiteArea < 10){    //如果检测到的瑕疵的中心点在背景区（防止模型异常或早期的训练数据影响）
                 cout << "放过背景上的瑕疵" << endl;
                 continue;
             }
@@ -705,9 +704,9 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
                 Scalar scalar = Scalar(0,255,255);
                 result = objectId + 2;  //good是1，瑕疵从2开始
                 defectResult[0].emplace_back(result);
-                rectangle(roiImage, box, scalar, 5, 8);
-                // line(roiImage, Point(centerX, centerY), Point(roiImage.cols/2, roiImage.rows/2), scalar, 2);
-                processedImage = roiImage.clone();
+                rectangle(resultImage, box, scalar, 5, 8);
+                // line(resultImage, Point(centerX, centerY), Point(resultImage.cols/2, resultImage.rows/2), scalar, 2);
+                processedImage = resultImage.clone();
                 continue;
             }
             
@@ -745,8 +744,8 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
         //         Scalar scalar = Scalar(0,255,255);
         //         result = (int)DefectType::defect2;
         //         defectResult[0].emplace_back(result);
-        //         rectangle(roiImage, boxesXianshang[i], scalar, 5, 8);     
-        //         processedImage = roiImage.clone();
+        //         rectangle(resultImage, boxesXianshang[i], scalar, 5, 8);     
+        //         processedImage = resultImage.clone();
         //         continue;
         //     }
         // }
@@ -758,8 +757,8 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
         //         Scalar scalar = Scalar(0,255,255);
         //         result = (int)DefectType::defect3;
         //         defectResult[0].emplace_back(result);
-        //         rectangle(roiImage, boxesDianshang[i], scalar, 5, 8);
-        //         processedImage = roiImage.clone();
+        //         rectangle(resultImage, boxesDianshang[i], scalar, 5, 8);
+        //         processedImage = resultImage.clone();
         //         continue;
         //     }
         // }
@@ -771,8 +770,8 @@ bool XJAlgorithm::detectByDL(cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat
         //         Scalar scalar = Scalar(0,255,255);
         //         result = (int)DefectType::defect3;
         //         defectResult[0].emplace_back(result);
-        //         rectangle(roiImage, boxesYiwudian[i], scalar, 5, 8);
-        //         processedImage = roiImage.clone();
+        //         rectangle(resultImage, boxesYiwudian[i], scalar, 5, 8);
+        //         processedImage = resultImage.clone();
         //         continue;
         //     }
         // }

@@ -28,30 +28,12 @@ public:
 private:
     bool locateBox(const cv::Mat& image, cv::Rect &box_origin, cv::Rect &box, const int nCaptureTimes);
     bool checkWuxing(cv::Rect &box);    //
-    bool extractROI(const cv::Mat &roiImage, const cv::Rect &roiRect, std::vector<cv::Rect> &vTargetRect, std::vector<cv::Mat> &vTargetImage);
+    bool extractROI(const cv::Mat &resultImage, const cv::Rect &roiRect, std::vector<cv::Rect> &vTargetRect, std::vector<cv::Mat> &vTargetImage);
 
     cv::Mat preprocessImage(const cv::Mat &roiImage);
     bool detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult, const int nCaptureTimes);
 
-    bool detectCharacter(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectTiaoxingma(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectLogo(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectLogoHunliao(const cv::Mat& image, cv::Mat &processedImage);
-
-    bool locateNeituoGapROI(const cv::Mat& image, const cv::Rect &roiRC,  cv::Rect &dstRC, const int nCaptureTimes);
-    bool detectNeituoGap(const cv::Mat& image, const cv::Rect &roiRC, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectNeiDuanHunliao(const cv::Mat& image, cv::Mat &processedImage);
-    bool detectYoubaohumo(const cv::Mat& image, cv::Mat &processedImage);
-
-    bool detectMianZhiHunLiaoEmb(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectTianGaiErDuo(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectPingKaYiChang(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectWuTiaoXingMa(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectDiGaiErDuo(const cv::Mat &image, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectDiGaiNeiChangHeight(const cv::Mat &image, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectDiGaiBaoHuMo(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool detectTianGaiBaoHuMo(const cv::Mat &roiImage, const cv::Rect &roiRect, cv::Mat &processedImage, const int nCaptureTimes);
-    bool isDisableDet(const float defectType);
+    bool detectYiYinPianYi(const cv::Mat &image);
 
     bool getContour(const std::vector<std::vector<cv::Point>>& contours, int &maxAreaIdx, float& maxContourArea, const int &resize_scale);
     bool detectXianShang(const std::vector<cv::Rect> &boxesXianshang, const std::vector<float> area, const std::vector<float> diag, const int objectId);
@@ -116,6 +98,12 @@ private:
     int m_productCentre; // 中心区
     int m_productEdge; // 边缘区
     int m_product_diameter; // 扣图ROI
+
+    //图纹区直径
+    int m_tuwenWidth;
+    int m_tuwenHeight;
+    int m_tuwenWidthOffset;
+    int m_tuwenHeightOffset;
 
     //UI params
     float m_minNeituoHeight;

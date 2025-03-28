@@ -106,10 +106,16 @@ bool XJAlgorithm::init(const stConfigParamsA &stParamsA, const stConfigParamsB &
         m_roiHeight = m_stParamsB.vecFParams.at("ROI_HEIGHT")[m_stParamsA.boardId];
 
         //扣图检测物性
-        m_wuxingWidth = m_stParamsB.vecFParams.at("WUXING_X")[m_stParamsA.boardId];
-        m_wuxingHeight = m_stParamsB.vecFParams.at("WUXING_Y")[m_stParamsA.boardId];
-        m_wuxingWidthOffset = m_stParamsB.vecFParams.at("WUXING_X_OFFSET")[m_stParamsA.boardId];
-        m_wuxingHeightOffset = m_stParamsB.vecFParams.at("WUXING_Y_OFFSET")[m_stParamsA.boardId];
+        m_wuxingWidth = m_stParamsB.vecFParams.at("WUXING_WIDTH")[m_stParamsA.boardId];
+        m_wuxingHeight = m_stParamsB.vecFParams.at("WUXING_HEIGHT")[m_stParamsA.boardId];
+        m_wuxingWidthOffset = m_stParamsB.vecFParams.at("WUXING_WIDTH_OFFSET")[m_stParamsA.boardId];
+        m_wuxingHeightOffset = m_stParamsB.vecFParams.at("WUXING_HEIGHT_OFFSET")[m_stParamsA.boardId];
+
+        // 图纹区直径大小，检测偏移
+        m_tuwenWidth = m_stParamsB.vecFParams.at("TUWEN_WIDTH")[0];
+        m_tuwenHeight = m_stParamsB.vecFParams.at("TUWEN_HEIGHT")[0];
+        m_tuwenWidthOffset = m_stParamsB.vecFParams.at("TUWEN_WIDTH_OFFSET")[0];
+        m_tuwenHeightOffset = m_stParamsB.vecFParams.at("TUWEN_HEIGHT_OFFSET")[0];
 
         // m_vDisableDefectType = m_stParamsB.vecFParams.at("DISABLE_DEFECT_TYPE_DET_CAM" +  to_string(m_stParamsA.boardId + 1));
 
@@ -228,6 +234,21 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
 
 	const double t1 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] :  time cost " << t1 << " seconds" << endl;
+
+    // 传统检测移印偏移
+
+    if(nCaptureTimes == 1 && m_stParamsA.boardId == 1 && m_stParamsB.fParams.at("IS_CHECK_YIYINPIANYI"))
+    {
+        if(!detectYiYinPianYi(image))
+        {
+            cout << "ERROR 移印偏移" << endl; 
+            result = (int)DefectType::defect11;
+            defectResult[0].emplace_back(result);
+            // imwrite("/opt/app/test/extractROI.png", resultImage);
+            return defectResult;
+        }
+    }
+
     //step1: locate box
     m_timer.reset();
     Rect roiRect, roi_origin;
@@ -258,7 +279,6 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     //step2: 屏蔽背景区域
     Mat resultImage;
     missBackground(roiImage, resultImage);
-    
     // 红光暗场屏蔽区域
     if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
     {
@@ -270,6 +290,8 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
         resultImage = dst.clone();
         imwrite("/opt/app/test/红光暗场屏蔽区域.png", resultImage);
     }    
+    processedImage = resultImage.clone();
+
     //step3:split ROI 
     vector<Rect> vTargetRect;
     vector<Mat> vTargetImage;
@@ -287,7 +309,6 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : extractROI time cost " << t3 << " seconds" << endl;
     m_timer.reset();
     //step4: get detect result by DL
-    processedImage = resultImage.clone();
     for (int i = 0; i < vTargetImage.size(); i++)   // 
     {
         result = (int)DefectType::good;
@@ -502,12 +523,12 @@ bool XJAlgorithm::getContour(const vector<vector<Point>>& contours, int &maxArea
 }
 
 //split box to ROI
-bool XJAlgorithm::extractROI(const Mat &roiImage, const Rect &roiRect, vector<Rect> &vTargetRect, vector<Mat> &vTargetImage)
+bool XJAlgorithm::extractROI(const Mat &resultImage, const Rect &roiRect, vector<Rect> &vTargetRect, vector<Mat> &vTargetImage)
 {
     const int numTargetX = 5;
     const int numTargetY = 5;
-    const int width = roiImage.cols;
-    const int height = roiImage.rows;
+    const int width = resultImage.cols;
+    const int height = resultImage.rows;
     const int targetSize = TARGET_SIZE;
 
     for(int i = 0; i != numTargetY; ++i)
@@ -522,22 +543,22 @@ bool XJAlgorithm::extractROI(const Mat &roiImage, const Rect &roiRect, vector<Re
 			int top = i *(targetSize - overlapY);
 			int bot = top + targetSize ;
 
-            if(right > roiImage.cols)
+            if(right > resultImage.cols)
 			{
-				right = roiImage.cols;
-				left = roiImage.cols - targetSize;
+				right = resultImage.cols;
+				left = resultImage.cols - targetSize;
                 if (left < 0) left = 0;
 			}
 
-			if(bot > roiImage.rows)
+			if(bot > resultImage.rows)
 			{
-				bot = roiImage.rows;
-				top = roiImage.rows - targetSize;
+				bot = resultImage.rows;
+				top = resultImage.rows - targetSize;
                 if (top < 0) top = 0;
 			}
 
             Rect targetRc = Rect(Point(left, top), Point(right, bot));
-            Mat targetImage = roiImage(targetRc).clone();
+            Mat targetImage = resultImage(targetRc).clone();
         
 			//fix coor in source image not roi region
 			// targetRc.x += roiRect.tl().x;
@@ -845,7 +866,70 @@ bool XJAlgorithm::detectYiWuDian(const std::vector<cv::Rect> &boxesYiwudian, con
     return true;
 }
 
+bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image)
+{
+    Mat dst, bilateral, edges, bin;
+    vector<Mat> channels;
+    int resize_scale = 5;
+    resize(image, dst, Size(image.cols / resize_scale, image.rows / resize_scale));
+    split(dst, channels);
+    bilateralFilter(channels[0], bilateral, 10, 10, 10);
+    Canny(bilateral, edges, 100, 230);
+    Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
+    morphologyEx(edges, bin, MORPH_CLOSE, kernel);
 
+    vector<vector<Point>> contours;
+    vector<Vec4i> hierarchy;
+    findContours(bin, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);
+
+    Rect r_product, r_center;
+    for (size_t i = 0; i < contours.size(); i++)
+    {
+        Rect box = boundingRect(contours[i]);
+
+        // 找产品最大轮廓
+        if (box.height > (m_wuxingHeight - m_wuxingHeightOffset) / resize_scale && box.height < (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale &&
+            box.width > (m_wuxingWidth - m_wuxingWidthOffset) / resize_scale && box.width < (m_wuxingWidth + m_wuxingWidthOffset) / resize_scale)
+        {
+            if (box.area() > r_product.area())
+            {
+            cout << "-----  box.height " << box.height << "  (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale  " << (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale <<  endl;
+                r_product = box;
+            }            
+        }
+
+        // 找图纹区最大轮廓
+        if (box.height > (m_tuwenHeight - m_tuwenHeightOffset) / resize_scale && box.height < (m_tuwenHeight + m_tuwenHeightOffset) / resize_scale && 
+            box.width > (m_tuwenWidth - m_tuwenWidthOffset) / resize_scale && box.width < (m_tuwenWidth + m_tuwenWidthOffset) / resize_scale)
+        {
+            if (box.area() > r_center.area())
+            {
+                r_center = box;
+            }            
+        }
+        
+    }
+    
+    if(m_stParamsB.fParams.at("IS_DEBUG"))
+    {
+        imwrite("/opt/app/test/bin.png", bin);
+        Mat src = dst.clone();
+        rectangle(src, r_product, Scalar(0, 255, 255), 2);
+        rectangle(src, r_center, Scalar(0, 0, 255), 2);
+        imwrite("/opt/app/test/src.png", src);
+    }
+    // 计算产品轮廓中心与图纹轮廓中心的距离，大于设定值判定为移印偏移（图纹太靠近边界扣图找不到轮廓也当是偏移）
+    Point center1 = Point(r_product.x + r_product.width / 2, r_product.y + r_product.height / 2);
+    Point center2 = Point(r_center.x + r_center.width / 2, r_center.y + r_center.height / 2);
+    double distance = norm(center1 - center2);
+    cout << "==================== " << distance << endl;
+    if (distance > m_stParamsB.fParams.at("YIYINPIANYI_THRE"))
+    {
+        return false;
+    }    
+
+    return true;
+}
 
 
 

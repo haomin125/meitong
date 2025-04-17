@@ -33,7 +33,7 @@ private:
     cv::Mat preprocessImage(const cv::Mat &roiImage);
     bool detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult, const int nCaptureTimes);
 
-    bool detectYiYinPianYi(const cv::Mat &image);
+    bool detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImage);
 
     bool getContour(const std::vector<std::vector<cv::Point>>& contours, int &maxAreaIdx, float& maxContourArea, const int &resize_scale);
     bool detectXianShang(const std::vector<cv::Rect> &boxesXianshang, const std::vector<float> area, const std::vector<float> diag, const int objectId);

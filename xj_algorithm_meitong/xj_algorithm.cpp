@@ -239,7 +239,7 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
 
     if(nCaptureTimes == 1 && m_stParamsA.boardId == 1 && m_stParamsB.fParams.at("IS_CHECK_YIYINPIANYI"))
     {
-        if(!detectYiYinPianYi(image))
+        if(!detectYiYinPianYi(image, processedImage))
         {
             cout << "ERROR 移印偏移" << endl; 
             result = (int)DefectType::defect11;
@@ -659,7 +659,6 @@ bool XJAlgorithm::detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::
             diagL = std::sqrt(box.width*box.width + box.height*box.height); //瑕疵对角线长度
 
             // cout << "模型检测结果C" << objectId + 2 << "  PROB:" << confidences << " _  AREA:" << tempS << "_  DIAG:" << diagL << endl;
-            s_ResultIdName = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-ID" + to_string(objectId + 2);
 
             //防止边缘附近的背景上的瑕疵误检
             //定义一个空的掩膜图，对应ROI区
@@ -682,22 +681,26 @@ bool XJAlgorithm::detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::
                 cout << "放过背景上的瑕疵" << endl;
                 continue;
             }
+            string seg;
             if (nCaptureTimes == 1)
             {
                 if(d_defect2center <= m_productCentre){
                     m_vMinDefectArea = m_vMinDefectArea_C_pic1;
                     m_vMinDefectProb = m_vMinDefectProb_C_pic1;
                     m_vMinDefectDiag = m_vMinDefectDiag_C_pic1;
+                    seg = "C";
                 }
                 else if(m_productEdge > d_defect2center && d_defect2center > m_productCentre){
                     m_vMinDefectArea = m_vMinDefectArea_NC_pic1;
                     m_vMinDefectProb = m_vMinDefectProb_NC_pic1;
                     m_vMinDefectDiag = m_vMinDefectDiag_NC_pic1;
+                    seg = "NC";
                 }
                 else{
                     m_vMinDefectArea = m_vMinDefectArea_E_pic1;
                     m_vMinDefectProb = m_vMinDefectProb_E_pic1;
                     m_vMinDefectDiag = m_vMinDefectDiag_E_pic1;
+                    seg = "E";
                 }
             }
             else
@@ -706,18 +709,23 @@ bool XJAlgorithm::detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::
                     m_vMinDefectArea = m_vMinDefectArea_C_pic2;
                     m_vMinDefectProb = m_vMinDefectProb_C_pic2;
                     m_vMinDefectDiag = m_vMinDefectDiag_C_pic2;
+                    seg = "C";
                 }
                 else if(m_productEdge > d_defect2center && d_defect2center > m_productCentre){
                     m_vMinDefectArea = m_vMinDefectArea_NC_pic2;
                     m_vMinDefectProb = m_vMinDefectProb_NC_pic2;
                     m_vMinDefectDiag = m_vMinDefectDiag_NC_pic2;
+                    seg = "NC";
                 }
                 else{
                     m_vMinDefectArea = m_vMinDefectArea_E_pic2;
                     m_vMinDefectProb = m_vMinDefectProb_E_pic2;
                     m_vMinDefectDiag = m_vMinDefectDiag_E_pic2;
+                    seg = "E";
                 }               
             }
+            //初次命名
+            s_ResultIdName = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-ID" + to_string(objectId + 2) + "-" + seg;
 
             // 瑕疵：后处理判断 OK/NG
             if (tempS > m_vMinDefectArea[objectId] && diagL >= m_vMinDefectDiag[objectId] && confidences >= m_vMinDefectProb[objectId] && whiteArea >= 1)
@@ -728,6 +736,8 @@ bool XJAlgorithm::detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::
                 rectangle(resultImage, box, scalar, 5, 8);
                 // line(resultImage, Point(centerX, centerY), Point(resultImage.cols/2, resultImage.rows/2), scalar, 2);
                 processedImage = resultImage.clone();
+                //最后命名
+                s_ResultIdName = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-ID" + to_string(objectId + 2) + "-" + seg;
                 continue;
             }
             
@@ -866,7 +876,7 @@ bool XJAlgorithm::detectYiWuDian(const std::vector<cv::Rect> &boxesYiwudian, con
     return true;
 }
 
-bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image)
+bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImage)
 {
     Mat dst, bilateral, edges, bin;
     vector<Mat> channels;
@@ -893,7 +903,7 @@ bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image)
         {
             if (box.area() > r_product.area())
             {
-            cout << "-----  box.height " << box.height << "  (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale  " << (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale <<  endl;
+                // cout << "-----  box.height " << box.height << "  (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale  " << (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale <<  endl;
                 r_product = box;
             }            
         }
@@ -922,9 +932,15 @@ bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image)
     Point center1 = Point(r_product.x + r_product.width / 2, r_product.y + r_product.height / 2);
     Point center2 = Point(r_center.x + r_center.width / 2, r_center.y + r_center.height / 2);
     double distance = norm(center1 - center2);
-    cout << "==================== " << distance << endl;
+    double juli = distance * 0.067;
     if (distance > m_stParamsB.fParams.at("YIYINPIANYI_THRE"))
     {
+        Mat src = image.clone();
+        rectangle(src, r_product, Scalar(0, 255, 255), 2);
+        rectangle(src, r_center, Scalar(0, 0, 255), 2);
+        line(src, center1 * resize_scale, center2 * resize_scale, Scalar(0, 0, 255), 5);
+	    putText(processedImage, to_string(distance), Point(1500, 150), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
+	    putText(processedImage, "~" + to_string(juli) + "mm", Point(1500, 350), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
         return false;
     }    
 

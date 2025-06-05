@@ -280,9 +280,10 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     Mat resultImage;
     missBackground(roiImage, resultImage);
     // 红光暗场屏蔽区域
-    if(nCaptureTimes == 2 && m_stParamsA.boardId == 0)
+    float is_area = m_stParamsB.fParams.at("RED_AN_AREA");
+    if(nCaptureTimes == 2 && m_stParamsA.boardId == 0 && is_area != 0)
     {
-        const int radius_is = m_wuxingWidth / 2.7;
+        const int radius_is = m_wuxingWidth / 2 / is_area;
         cv::Mat mask3 = cv::Mat::ones(resultImage.rows, resultImage.cols, CV_8UC1);  //CV_8UC1：8位单通道图像
         cv::circle(mask3, Point(resultImage.cols / 2, resultImage.rows / 2), radius_is, cv::Scalar(0), -1);
         cv::Mat dst;
@@ -339,9 +340,9 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
             }
         }
     }  
-    //在UI显示，可视化区分中心区/非中心区/边缘区
-    cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productCentre, Scalar(255, 0, 255), 3, cv::LINE_8);
-    cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productEdge, Scalar(255, 0, 255), 3, cv::LINE_8);
+    //在UI显示，可视化区分中心区/非中心区/边缘区 //改成命名方式
+    // cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productCentre, Scalar(255, 0, 255), 3, cv::LINE_8);
+    // cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productEdge, Scalar(255, 0, 255), 3, cv::LINE_8);
 
     const double t4 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : detectByDL time cost " << t4 << " seconds" << endl;
@@ -725,7 +726,7 @@ bool XJAlgorithm::detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::
                 }               
             }
             //初次命名
-            s_ResultIdName = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-ID" + to_string(objectId + 2) + "-" + seg;
+            s_ResultIdName = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-C" + to_string(objectId + 2) + "-" + seg;
 
             // 瑕疵：后处理判断 OK/NG
             if (tempS > m_vMinDefectArea[objectId] && diagL >= m_vMinDefectDiag[objectId] && confidences >= m_vMinDefectProb[objectId] && whiteArea >= 1)
@@ -737,7 +738,7 @@ bool XJAlgorithm::detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::
                 // line(resultImage, Point(centerX, centerY), Point(resultImage.cols/2, resultImage.rows/2), scalar, 2);
                 processedImage = resultImage.clone();
                 //最后命名
-                s_ResultIdName = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-ID" + to_string(objectId + 2) + "-" + seg;
+                s_ResultIdName = "-PROB" + to_string(confidences) + "-AREA" + to_string(tempS) + "-DIAG" + to_string(diagL) + "-C" + to_string(objectId + 2) + "-" + seg;
                 continue;
             }
             
@@ -935,10 +936,10 @@ bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImag
     double juli = distance * 0.067;
     if (distance > m_stParamsB.fParams.at("YIYINPIANYI_THRE"))
     {
-        Mat src = image.clone();
-        rectangle(src, r_product, Scalar(0, 255, 255), 2);
-        rectangle(src, r_center, Scalar(0, 0, 255), 2);
-        line(src, center1 * resize_scale, center2 * resize_scale, Scalar(0, 0, 255), 5);
+        // Mat src = image.clone();
+        // rectangle(src, r_product, Scalar(0, 255, 255), 2);
+        // rectangle(src, r_center, Scalar(0, 0, 255), 2);
+        // line(src, center1 * resize_scale, center2 * resize_scale, Scalar(0, 0, 255), 5);
 	    putText(processedImage, to_string(distance), Point(1500, 150), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
 	    putText(processedImage, "~" + to_string(juli) + "mm", Point(1500, 350), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
         return false;
@@ -946,7 +947,7 @@ bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImag
 
     return true;
 }
-
+ 
 
 
 

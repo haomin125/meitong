@@ -876,72 +876,119 @@ bool XJAlgorithm::detectYiWuDian(const std::vector<cv::Rect> &boxesYiwudian, con
     }
     return true;
 }
-
-bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImage)
+bool XJAlgorithm::findContour(const cv::Mat &image, cv::Rect &roiRect, cv::Point2f &center, float &radius, bool is_select)
 {
-    Mat dst, bilateral, edges, bin;
+    Mat bilateral, edges, bin, gray;
     vector<Mat> channels;
-    int resize_scale = 5;
-    resize(image, dst, Size(image.cols / resize_scale, image.rows / resize_scale));
-    split(dst, channels);
-    bilateralFilter(channels[0], bilateral, 10, 10, 10);
-    Canny(bilateral, edges, 100, 230);
-    Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
+    cvtColor(image, gray, COLOR_RGB2GRAY);
+    // bilateralFilter(gray, gray, 3, 3, 3);
+    threshold(gray, edges, 205, 255, THRESH_BINARY_INV);
+    // split(image, channels);
+    // bilateralFilter(channels[0], bilateral, 10, 10, 10);
+    // Canny(bilateral, edges, 100, 230);
+    Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(9, 9));
     morphologyEx(edges, bin, MORPH_CLOSE, kernel);
+    imwrite("/opt/app/test/pianyi/gray.png", gray);
+    imwrite("/opt/app/test/pianyi/edges.png", edges);
+    imwrite("/opt/app/test/pianyi/bin.png", bin);
 
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
     findContours(bin, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);
 
-    Rect r_product, r_center;
+    int maxId;
     for (size_t i = 0; i < contours.size(); i++)
     {
         Rect box = boundingRect(contours[i]);
 
-        // 找产品最大轮廓
-        if (box.height > (m_wuxingHeight - m_wuxingHeightOffset) / resize_scale && box.height < (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale &&
-            box.width > (m_wuxingWidth - m_wuxingWidthOffset) / resize_scale && box.width < (m_wuxingWidth + m_wuxingWidthOffset) / resize_scale)
+        if(is_select)
         {
-            if (box.area() > r_product.area())
+            imwrite("/opt/app/test/bin0.png", bin);
+            // 找产品最大轮廓
+            if (box.height > (m_wuxingHeight - m_wuxingHeightOffset) / resize_scale && box.height < (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale &&
+                box.width > (m_wuxingWidth - m_wuxingWidthOffset) / resize_scale && box.width < (m_wuxingWidth + m_wuxingWidthOffset) / resize_scale)
             {
-                // cout << "-----  box.height " << box.height << "  (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale  " << (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale <<  endl;
-                r_product = box;
-            }            
-        }
-
-        // 找图纹区最大轮廓
-        if (box.height > (m_tuwenHeight - m_tuwenHeightOffset) / resize_scale && box.height < (m_tuwenHeight + m_tuwenHeightOffset) / resize_scale && 
-            box.width > (m_tuwenWidth - m_tuwenWidthOffset) / resize_scale && box.width < (m_tuwenWidth + m_tuwenWidthOffset) / resize_scale)
+                if (box.area() > roiRect.area())
+                {
+                    // cout << "-----  box.height " << box.height << "  (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale  " << (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale <<  endl;
+                    roiRect = box;
+                    maxId = i;
+                }            
+            }
+        }else
         {
-            if (box.area() > r_center.area())
+            imwrite("/opt/app/test/bin1.png", bin);
+            // 找图纹区最大轮廓
+            if (box.height > (m_tuwenHeight - m_tuwenHeightOffset) / resize_scale && box.height < (m_tuwenHeight + m_tuwenHeightOffset) / resize_scale && 
+                box.width > (m_tuwenWidth - m_tuwenWidthOffset) / resize_scale && box.width < (m_tuwenWidth + m_tuwenWidthOffset) / resize_scale || 1)
             {
-                r_center = box;
-            }            
+                if (box.area() > roiRect.area())
+                {
+                    roiRect = box;
+                    maxId = i;
+                }            
+            }
         }
-        
     }
+
+    //yuanceshi
+    Mat ads = image.clone();
+    minEnclosingCircle(contours[maxId], center, radius);
+    circle(ads, center, (int)radius, Scalar(0, 0, 255), 2);
+    imwrite("/opt/app/test/pianyi/circle.png", ads);
     
+}
+
+
+bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImage)
+{
+    Mat dst;
+    resize(image, dst, Size(image.cols / resize_scale, image.rows / resize_scale));
+    
+    Rect r_product, r_center;
+    Point2f center;
+    float radius;
+    // 找产品轮廓
+    findContour(dst, r_product, center, radius, true);
+    // Point center1 = Point(r_product.x + r_product.width / 2, r_product.y + r_product.height / 2);//矩形轮廓
+    // cout << "center    " << center << "    center1   " << center1 << endl;
+    Point2f center1 = center;                                                                            //圆形轮廓
+    cout << "center    " << center << "    center1   " << center1 << endl;
+    
+    // 扣掉产品轮廓
+    int banjing = (r_product.width + r_product.height) / 4 - 5;
+    banjing = (int)radius - 5;
+    Mat mask = Mat::zeros(dst.size(), CV_8UC1);
+    circle(mask, center1, banjing, Scalar(255), -1);
+    Mat result = Mat(dst.size(), dst.type(), Scalar(255,255,255));
+    dst.copyTo(result, mask);
+    
+    // 找图纹轮廓
+            imwrite("/opt/app/test/result.png", result);
+    findContour(result, r_center, center, radius, false);
+
+    // 计算产品轮廓中心与图纹轮廓中心的距离，大于设定值判定为移印偏移（图纹太靠近边界扣图找不到轮廓也当是偏移）
+    // Point center2 = Point(r_center.x + r_center.width / 2, r_center.y + r_center.height / 2);  //矩形轮廓
+    Point2f center2 = center;                                                                          //圆形轮廓
+    cout << "center    " << center << "    center2   " << center2 << endl;
+    double distance = norm(center1 - center2);
+    double juli = distance * resize_scale * 0.005125;
+    cout << "distance    " << distance << "    juli   " << juli << endl;
+
     if(m_stParamsB.fParams.at("IS_DEBUG"))
     {
-        imwrite("/opt/app/test/bin.png", bin);
         Mat src = dst.clone();
         rectangle(src, r_product, Scalar(0, 255, 255), 2);
         rectangle(src, r_center, Scalar(0, 0, 255), 2);
+        line(src, center1, center2, Scalar(0, 0, 255), 5);
         imwrite("/opt/app/test/src.png", src);
     }
-    // 计算产品轮廓中心与图纹轮廓中心的距离，大于设定值判定为移印偏移（图纹太靠近边界扣图找不到轮廓也当是偏移）
-    Point center1 = Point(r_product.x + r_product.width / 2, r_product.y + r_product.height / 2);
-    Point center2 = Point(r_center.x + r_center.width / 2, r_center.y + r_center.height / 2);
-    double distance = norm(center1 - center2);
-    double juli = distance * 0.067;
-    if (distance > m_stParamsB.fParams.at("YIYINPIANYI_THRE"))
+
+    // putText(processedImage, to_string(distance), Point(1500, 150), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
+    // putText(processedImage, to_string(juli) + "mm", Point(1500, 350), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
+    putText(processedImage, to_string(juli) + "mm", Point(1500, 150), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
+    if (juli > m_stParamsB.fParams.at("YIYINPIANYI_THRE"))
     {
-        // Mat src = image.clone();
-        // rectangle(src, r_product, Scalar(0, 255, 255), 2);
-        // rectangle(src, r_center, Scalar(0, 0, 255), 2);
-        // line(src, center1 * resize_scale, center2 * resize_scale, Scalar(0, 0, 255), 5);
-	    putText(processedImage, to_string(distance), Point(1500, 150), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
-	    putText(processedImage, "~" + to_string(juli) + "mm", Point(1500, 350), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
         return false;
     }    
 

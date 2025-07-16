@@ -34,6 +34,7 @@ private:
     bool detectByDL(cv::Mat &resultImage, const cv::Rect &roiRect, cv::Mat &targetImage, int &result, std::vector<std::vector<int>> &defectResult, cv::Mat &processedImage, std::string &s_modelResult, const int nCaptureTimes);
 
     bool detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImage);
+    bool findContour(const cv::Mat &image, cv::Rect &roiRect, cv::Point2f &center, float &radius, bool is_select);
 
     bool getContour(const std::vector<std::vector<cv::Point>>& contours, int &maxAreaIdx, float& maxContourArea, const int &resize_scale);
     bool detectXianShang(const std::vector<cv::Rect> &boxesXianshang, const std::vector<float> area, const std::vector<float> diag, const int objectId);
@@ -88,6 +89,7 @@ private:
     int m_roiOffsetY;
     int m_roiWidth;
     int m_roiHeight;
+    int resize_scale = 5;
 
     //物性
     int m_isCheckWuxing;

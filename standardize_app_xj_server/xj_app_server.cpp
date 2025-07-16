@@ -584,25 +584,26 @@ bool XJAppServer::runDetector(const int boardId)
 			m_pDetectors[boardId].m_pDetector->resetProductCount(m_pDetectors[boardId].m_pDetector->productCount() - 1);
 		}
 	}
-	m_pDetectors[boardId].m_pDetector->updateProductCountofWorkflow(); //使用框架计数
+	// m_pDetectors[boardId].m_pDetector->updateProductCountofWorkflow(); //使用框架计数
 
 	//////////////////////////// STEP2: pre-process next image ////////////////////////////
 	m_vTimer[boardId]->reset();
 	LogDEBUG << "extern: Board[" << boardId << "] process image started. \t Product count: " << m_pDetectors[boardId].m_pDetector->productCount();
-	// if (nullptr != m_pIoManager)  //使用PLC计数
-	// {
-	// 	const int boardCountAddress = boardCountAddressVec.at(boardId);
-	// 	int boardProductCount = 0;
-	// 	if (dynamic_pointer_cast<AppIoManagerPLC>(m_pIoManager)->readRegister(boardCountAddress, boardProductCount))
-	// 	{
-	// 		m_pDetectors[boardId].m_pDetector->updateProductCountofWorkflow(boardProductCount);
-	// 		LogDEBUG << "extern: Board[" << boardId << "] read product count from plc, address : " << boardCountAddress << ", value: " << boardProductCount;
-	// 	}
-	// 	else
-	// 	{
-	// 		LogERROR << "extern: Board[" << boardId << "] read product count from plc failed! ";
-	// 	}
-	// }
+	
+	if (nullptr != m_pIoManager)  //使用PLC计数
+	{
+		const int boardCountAddress = boardCountAddressVec.at(boardId);
+		int boardProductCount = 0;
+		if (dynamic_pointer_cast<AppIoManagerPLC>(m_pIoManager)->readRegister(boardCountAddress, boardProductCount))
+		{
+			m_pDetectors[boardId].m_pDetector->updateProductCountofWorkflow(boardProductCount);
+			LogDEBUG << "extern: Board[" << boardId << "] read product count from plc, address : " << boardCountAddress << ", value: " << boardProductCount;
+		}
+		else
+		{
+			LogERROR << "extern: Board[" << boardId << "] read product count from plc failed! ";
+		}
+	}
 	
 	if (!m_pDetectors[boardId].m_pDetector->imagePreProcess())
 	{

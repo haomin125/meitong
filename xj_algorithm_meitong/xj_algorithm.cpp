@@ -235,19 +235,6 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
 	const double t1 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] :  time cost " << t1 << " seconds" << endl;
 
-    // 传统检测移印偏移
-
-    if(nCaptureTimes == 1 && m_stParamsA.boardId == 1 && m_stParamsB.fParams.at("IS_CHECK_YIYINPIANYI"))
-    {
-        if(!detectYiYinPianYi(image, processedImage))
-        {
-            cout << "ERROR 移印偏移" << endl; 
-            result = (int)DefectType::defect11;
-            defectResult[0].emplace_back(result);
-            // imwrite("/opt/app/test/extractROI.png", resultImage);
-            return defectResult;
-        }
-    }
 
     //step1: locate box
     m_timer.reset();
@@ -343,6 +330,19 @@ vector<vector<int>> XJAlgorithm::detectAnalyze(const Mat &image, Mat &processedI
     //在UI显示，可视化区分中心区/非中心区/边缘区 //改成命名方式
     // cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productCentre, Scalar(255, 0, 255), 3, cv::LINE_8);
     // cv::circle(processedImage, Point(resultImage.cols / 2, resultImage.rows / 2), m_productEdge, Scalar(255, 0, 255), 3, cv::LINE_8);
+
+    // 传统检测移印偏移
+    if(nCaptureTimes == 1 && m_stParamsA.boardId == 1 && m_stParamsB.fParams.at("IS_CHECK_YIYINPIANYI"))
+    {
+        if(!detectYiYinPianYi(processedImage, processedImage))
+        {
+            cout << "ERROR 移印偏移" << endl; 
+            result = (int)DefectType::defect11;
+            defectResult[0].emplace_back(result);
+            // imwrite("/opt/app/test/extractROI.png", resultImage);
+            // return defectResult;
+        }
+    }
 
     const double t4 = m_timer.elapsed();
     cout << "detectAnalyze: Board[" << m_stParamsA.boardId << "] : detectByDL time cost " << t4 << " seconds" << endl;
@@ -903,7 +903,7 @@ bool XJAlgorithm::findContour(const cv::Mat &image, cv::Rect &roiRect, cv::Point
 
         if(is_select)
         {
-            imwrite("/opt/app/test/bin0.png", bin);
+            // imwrite("/opt/app/test/pianyi/bin0.png", bin);
             // 找产品最大轮廓
             if (box.height > (m_wuxingHeight - m_wuxingHeightOffset) / resize_scale && box.height < (m_wuxingHeight + m_wuxingHeightOffset) / resize_scale &&
                 box.width > (m_wuxingWidth - m_wuxingWidthOffset) / resize_scale && box.width < (m_wuxingWidth + m_wuxingWidthOffset) / resize_scale)
@@ -917,7 +917,7 @@ bool XJAlgorithm::findContour(const cv::Mat &image, cv::Rect &roiRect, cv::Point
             }
         }else
         {
-            imwrite("/opt/app/test/bin1.png", bin);
+            // imwrite("/opt/app/test/pianyi/bin1.png", bin);
             // 找图纹区最大轮廓
             if (box.height > (m_tuwenHeight - m_tuwenHeightOffset) / resize_scale && box.height < (m_tuwenHeight + m_tuwenHeightOffset) / resize_scale && 
                 box.width > (m_tuwenWidth - m_tuwenWidthOffset) / resize_scale && box.width < (m_tuwenWidth + m_tuwenWidthOffset) / resize_scale || 1)
@@ -956,15 +956,17 @@ bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImag
     cout << "center    " << center << "    center1   " << center1 << endl;
     
     // 扣掉产品轮廓
-    int banjing = (r_product.width + r_product.height) / 4 - 5;
-    banjing = (int)radius - 5;
+    // int banjing = (r_product.width + r_product.height) / 4 - 5;
+    int banjing = (int)radius - 5;
     Mat mask = Mat::zeros(dst.size(), CV_8UC1);
+    if(banjing < 1) //有时是负数导致异常
+        banjing = mask.cols / 2;
     circle(mask, center1, banjing, Scalar(255), -1);
     Mat result = Mat(dst.size(), dst.type(), Scalar(255,255,255));
     dst.copyTo(result, mask);
     
     // 找图纹轮廓
-            imwrite("/opt/app/test/result.png", result);
+            imwrite("/opt/app/test/pianyi/result.png", result);
     findContour(result, r_center, center, radius, false);
 
     // 计算产品轮廓中心与图纹轮廓中心的距离，大于设定值判定为移印偏移（图纹太靠近边界扣图找不到轮廓也当是偏移）
@@ -986,7 +988,7 @@ bool XJAlgorithm::detectYiYinPianYi(const cv::Mat &image, cv::Mat &processedImag
 
     // putText(processedImage, to_string(distance), Point(1500, 150), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
     // putText(processedImage, to_string(juli) + "mm", Point(1500, 350), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
-    putText(processedImage, to_string(juli) + "mm", Point(1500, 150), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
+    putText(processedImage, to_string(juli), Point(1900, 100), FONT_HERSHEY_SIMPLEX, 4, Scalar(255, 0, 255), 3);
     if (juli > m_stParamsB.fParams.at("YIYINPIANYI_THRE"))
     {
         return false;
